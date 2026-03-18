@@ -14,7 +14,7 @@ public class ChatIncludedPlugin extends CaffeinatedPlugin {
 
     @Override
     public void onInit() {
-        getLogger().info("Initialising ChatIncluded v1.0.0...");
+        getLogger().info("Initialising ChatIncluded v" + VersionChecker.CURRENT_VERSION + "...");
 
         this.getPlugins().registerWidget(
                 this,
@@ -37,6 +37,9 @@ public class ChatIncludedPlugin extends CaffeinatedPlugin {
         this.addKoiListener(chatListener);
 
         getLogger().info("Ready. Waiting for chat events.");
+
+        // Check for updates asynchronously -- never blocks startup
+        VersionChecker.checkAsync(this);
     }
 
     private Koi resolveKoi() {
