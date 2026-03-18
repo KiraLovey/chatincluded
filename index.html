@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatIncluded — Multilingual Chat Translation for Streamers</title>
+    <meta name="description" content="ChatIncluded automatically translates multilingual chat in real time across Twitch, Kick, and YouTube. A free Casterlabs plugin for multi-streamers.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0d0d0d;
+            color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #a78bfa, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-bottom: 2.5rem;
+            max-width: 500px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #1f1f2e;
+            border: 1px solid #333;
+            border-radius: 999px;
+            padding: 0.3rem 1rem;
+            font-size: 0.85rem;
+            color: #a78bfa;
+            margin-bottom: 2.5rem;
+        }
+
+        .platforms {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .platform {
+            background: #1a1a2e;
+            border: 1px solid #2a2a3e;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.95rem;
+            color: #ccc;
+        }
+
+        .coming-soon {
+            font-size: 0.7rem;
+            color: #666;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        a.btn {
+            display: inline-block;
+            padding: 0.75rem 1.75rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: opacity 0.2s;
+        }
+
+        a.btn:hover { opacity: 0.85; }
+
+        a.btn-primary {
+            background: linear-gradient(135deg, #a78bfa, #60a5fa);
+            color: #0d0d0d;
+        }
+
+        a.btn-secondary {
+            background: #1a1a2e;
+            border: 1px solid #333;
+            color: #f0f0f0;
+        }
+
+        footer {
+            margin-top: 4rem;
+            font-size: 0.8rem;
+            color: #555;
+        }
+
+        footer a { color: #777; text-decoration: none; }
+        footer a:hover { color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <div class="logo">🌐</div>
+    <h1>ChatIncluded</h1>
+    <p class="tagline">
+        Automatically translate multilingual chat in real time — across every platform you stream on.
+    </p>
+
+    <div class="badge">Beta — Free &amp; Open Source</div>
+
+    <div class="platforms">
+        <div class="platform">✅ Twitch</div>
+        <div class="platform">✅ Kick</div>
+        <div class="platform">✅ YouTube</div>
+        <div class="platform">Trovo <span class="coming-soon">coming soon</span></div>
+        <div class="platform">TikTok <span class="coming-soon">coming soon</span></div>
+    </div>
+
+    <div class="links">
+        <a class="btn btn-primary" href="https://github.com/KiraLovey/chatincluded/releases">Download</a>
+        <a class="btn btn-secondary" href="https://github.com/KiraLovey/chatincluded">View on GitHub</a>
+        <a class="btn btn-secondary" href="https://casterlabs.co">Get Casterlabs</a>
+    </div>
+
+    <footer>
+        <p>Made with ❤️ for multilingual streaming communities &nbsp;·&nbsp;
+        <a href="https://github.com/KiraLovey/chatincluded">GitHub</a> &nbsp;·&nbsp;
+        <a href="https://casterlabs.co/discord">Casterlabs Discord</a>
+        </p>
+    </footer>
+
+</body>
+</html>
