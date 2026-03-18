@@ -3,150 +3,560 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatIncluded — Multilingual Chat Translation for Streamers</title>
-    <meta name="description" content="ChatIncluded automatically translates multilingual chat in real time across Twitch, Kick, and YouTube. A free Casterlabs plugin for multi-streamers.">
+    <title>ChatIncluded — Break the language barrier, live.</title>
+    <meta name="description" content="ChatIncluded automatically translates multilingual chat in real time across Twitch, Kick, and YouTube. A free Casterlabs plugin for streamers who believe every viewer belongs.">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --purple: #a78bfa;
+            --blue: #60a5fa;
+            --bg: #0a0a0f;
+            --surface: #13131f;
+            --border: #1e1e2e;
+            --text: #f0f0f0;
+            --muted: #888;
+        }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #0d0d0d;
-            color: #f0f0f0;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2rem;
+            line-height: 1.6;
         }
 
-        .logo {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+        /* ── Nav ── */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: rgba(10,10,15,0.92);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+        }
+
+        .nav-logo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--text); }
+
+        /* ── Hero ── */
+        .hero {
+            text-align: center;
+            padding: 6rem 2rem 5rem;
+            max-width: 780px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 0.3rem 1rem;
+            font-size: 0.8rem;
+            color: var(--purple);
+            margin-bottom: 1.75rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
         h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, #a78bfa, #60a5fa);
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--purple), var(--blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
         .tagline {
-            font-size: 1.2rem;
-            color: #aaa;
-            margin-bottom: 2.5rem;
-            max-width: 500px;
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            color: var(--muted);
+            margin-bottom: 0.5rem;
         }
 
-        .badge {
-            display: inline-block;
-            background: #1f1f2e;
-            border: 1px solid #333;
-            border-radius: 999px;
-            padding: 0.3rem 1rem;
-            font-size: 0.85rem;
-            color: #a78bfa;
-            margin-bottom: 2.5rem;
-        }
-
-        .platforms {
-            display: flex;
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .platform {
-            background: #1a1a2e;
-            border: 1px solid #2a2a3e;
-            border-radius: 12px;
-            padding: 0.75rem 1.5rem;
+        .mission {
             font-size: 0.95rem;
-            color: #ccc;
-        }
-
-        .coming-soon {
-            font-size: 0.7rem;
             color: #666;
-            display: block;
-            margin-top: 2px;
+            margin-bottom: 2.5rem;
+            max-width: 520px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        .links {
+        .hero-buttons {
             display: flex;
             gap: 1rem;
-            flex-wrap: wrap;
             justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3.5rem;
         }
 
-        a.btn {
+        .btn {
             display: inline-block;
-            padding: 0.75rem 1.75rem;
+            padding: 0.8rem 1.75rem;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 600;
             font-size: 0.95rem;
-            transition: opacity 0.2s;
+            transition: opacity 0.2s, transform 0.2s;
         }
 
-        a.btn:hover { opacity: 0.85; }
+        .btn:hover { opacity: 0.88; transform: translateY(-1px); }
 
-        a.btn-primary {
-            background: linear-gradient(135deg, #a78bfa, #60a5fa);
-            color: #0d0d0d;
+        .btn-primary {
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            color: #0a0a0f;
         }
 
-        a.btn-secondary {
-            background: #1a1a2e;
-            border: 1px solid #333;
-            color: #f0f0f0;
+        .btn-secondary {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
         }
 
-        footer {
-            margin-top: 4rem;
-            font-size: 0.8rem;
+        /* ── Platforms ── */
+        .platforms {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .platform-tag {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            color: #ccc;
+        }
+
+        .platform-tag .soon {
+            font-size: 0.7rem;
             color: #555;
+            margin-left: 0.4rem;
         }
 
-        footer a { color: #777; text-decoration: none; }
-        footer a:hover { color: #aaa; }
+        /* ── Section ── */
+        section {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--purple);
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-desc {
+            color: var(--muted);
+            font-size: 1rem;
+            margin-bottom: 2.5rem;
+            max-width: 560px;
+        }
+
+        /* ── Features grid ── */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        .feature-card p {
+            font-size: 0.875rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        /* ── Getting started ── */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            color: #0a0a0f;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-content h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .step-content p {
+            font-size: 0.875rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .step-content a {
+            color: var(--purple);
+            text-decoration: none;
+        }
+
+        .step-content a:hover { text-decoration: underline; }
+
+        /* ── Commands ── */
+        .commands-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .commands-table th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            color: var(--muted);
+            font-weight: 500;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .commands-table td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        .commands-table tr:last-child td { border-bottom: none; }
+
+        .commands-table tr:hover td { background: var(--surface); }
+
+        code {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.15rem 0.4rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: var(--purple);
+        }
+
+        .access-badge {
+            display: inline-block;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 0.15rem 0.6rem;
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        /* ── Divider ── */
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 0 2rem;
+        }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #555;
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+        }
+
+        footer a {
+            color: #777;
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+        footer a:hover { color: var(--muted); }
+
+        .footer-logo {
+            font-size: 1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            margin-bottom: 0.75rem;
+        }
     </style>
 </head>
 <body>
 
-    <div class="logo">🌐</div>
-    <h1>ChatIncluded</h1>
-    <p class="tagline">
-        Automatically translate multilingual chat in real time — across every platform you stream on.
-    </p>
+    <!-- Nav -->
+    <nav>
+        <a class="nav-logo" href="/">🌐 ChatIncluded</a>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#get-started">Get Started</a></li>
+            <li><a href="#commands">Commands</a></li>
+            <li><a href="https://github.com/KiraLovey/chatincluded">GitHub</a></li>
+        </ul>
+    </nav>
 
-    <div class="badge">Beta — Free &amp; Open Source</div>
-
-    <div class="platforms">
-        <div class="platform">✅ Twitch</div>
-        <div class="platform">✅ Kick</div>
-        <div class="platform">✅ YouTube</div>
-        <div class="platform">Trovo <span class="coming-soon">coming soon</span></div>
-        <div class="platform">TikTok <span class="coming-soon">coming soon</span></div>
-    </div>
-
-    <div class="links">
-        <a class="btn btn-primary" href="https://github.com/KiraLovey/chatincluded/releases">Download</a>
-        <a class="btn btn-secondary" href="https://github.com/KiraLovey/chatincluded">View on GitHub</a>
-        <a class="btn btn-secondary" href="https://casterlabs.co">Get Casterlabs</a>
-    </div>
-
-    <footer>
-        <p>Made with ❤️ for multilingual streaming communities &nbsp;·&nbsp;
-        <a href="https://github.com/KiraLovey/chatincluded">GitHub</a> &nbsp;·&nbsp;
-        <a href="https://casterlabs.co/discord">Casterlabs Discord</a>
+    <!-- Hero -->
+    <div class="hero">
+        <div class="badge">Beta — Free &amp; Open Source</div>
+        <h1>Break the language barrier, live.</h1>
+        <p class="tagline">Real-time multilingual chat translation for streamers.</p>
+        <p class="mission">
+            ChatIncluded automatically translates viewer messages and replies across every platform you stream on —
+            so every viewer, no matter where they're from, feels included.
         </p>
+
+        <div class="hero-buttons">
+            <a class="btn btn-primary" href="#get-started">Get Started Free</a>
+            <a class="btn btn-secondary" href="https://github.com/KiraLovey/chatincluded">View on GitHub</a>
+        </div>
+
+        <div class="platforms">
+            <div class="platform-tag">✅ Twitch</div>
+            <div class="platform-tag">✅ Kick</div>
+            <div class="platform-tag">✅ YouTube</div>
+            <div class="platform-tag">Trovo <span class="soon">coming soon</span></div>
+            <div class="platform-tag">TikTok <span class="soon">coming soon</span></div>
+        </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Features -->
+    <section id="features">
+        <p class="section-label">Features</p>
+        <h2 class="section-title">Everything you need for multilingual chat</h2>
+        <p class="section-desc">Built for multi-streamers with international communities. No setup beyond entering your API key.</p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔤</div>
+                <h3>Auto-Translation</h3>
+                <p>Detects viewer language automatically and translates to your language in real time. No commands needed.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3>Two-Way Conversation</h3>
+                <p>@mention a viewer and your reply is automatically translated back into their language. Real conversations, not just one-way output.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>Smart Emote Handling</h3>
+                <p>Emotes and emoji are never mistranslated. ChatIncluded reads Casterlabs' message fragments to skip non-text content on all platforms.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>Bot Exclusion List</h3>
+                <p>Add your bots by username and ChatIncluded will ignore them completely. Fossabot, StreamElements, Nightbot — all handled.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌍</div>
+                <h3>Multi-Platform</h3>
+                <p>Translates simultaneously across Twitch, Kick, and YouTube in a single session. Deduplication prevents the same message being translated twice.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚙️</div>
+                <h3>Fully Configurable</h3>
+                <p>Every feature has a toggle. Attribution, platform on/off switches, cooldowns, burst limits, and more — all in the Casterlabs widget panel.</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- Get Started -->
+    <section id="get-started">
+        <p class="section-label">Get Started</p>
+        <h2 class="section-title">Up and running in minutes</h2>
+        <p class="section-desc">ChatIncluded runs inside Casterlabs Caffeinated. You'll need a few free tools to get set up.</p>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Download Casterlabs Caffeinated</h3>
+                    <p>ChatIncluded is a plugin for Casterlabs — a free multi-streaming app that connects Twitch, Kick, YouTube, and more in one place.
+                    <br><br>
+                    <a href="https://casterlabs.co" target="_blank">→ Download Casterlabs Caffeinated (free)</a></p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Get a free DeepL API key</h3>
+                    <p>ChatIncluded uses DeepL for translations — one of the most accurate translation services available.
+                    A free account gives you 500,000 characters per month.
+                    <br><br>
+                    <a href="https://www.deepl.com/pro-api" target="_blank">→ Create a free DeepL account</a></p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Install Java and Maven</h3>
+                    <p>These free tools are needed to build the plugin. Full step-by-step instructions for beginners are in the README.
+                    <br><br>
+                    <a href="https://adoptium.net" target="_blank">→ Download Java (Adoptium)</a> &nbsp;·&nbsp;
+                    <a href="https://maven.apache.org/download.cgi" target="_blank">→ Download Maven</a></p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Download and build ChatIncluded</h3>
+                    <p>Full installation instructions — including beginner-friendly terminal guides — are on GitHub.
+                    <br><br>
+                    <a href="https://github.com/KiraLovey/chatincluded" target="_blank">→ View installation guide on GitHub</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- Commands -->
+    <section id="commands">
+        <p class="section-label">Commands</p>
+        <h2 class="section-title">Viewer commands</h2>
+        <p class="section-desc">Viewers can use these commands directly in chat. No setup required on their end.</p>
+
+        <table class="commands-table">
+            <thead>
+                <tr>
+                    <th>Command</th>
+                    <th>Access</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>!chatincluded</code></td>
+                    <td><span class="access-badge">Everyone</span></td>
+                    <td>Shows plugin info and a link to this page</td>
+                </tr>
+                <tr>
+                    <td><code>!languages</code></td>
+                    <td><span class="access-badge">Everyone</span></td>
+                    <td>Posts the most common language codes</td>
+                </tr>
+                <tr>
+                    <td><code>!setlang ES</code></td>
+                    <td><span class="access-badge">Everyone</span></td>
+                    <td>Pins your preferred language for the session. Confirmation sent in both English and your language. Override any time.</td>
+                </tr>
+                <tr>
+                    <td><code>!translate ES</code></td>
+                    <td><span class="access-badge">Everyone</span></td>
+                    <td>Translates the most recent chat message into Spanish</td>
+                </tr>
+                <tr>
+                    <td><code>!translate ES Hello!</code></td>
+                    <td><span class="access-badge">Everyone</span></td>
+                    <td>Translates the provided text into Spanish</td>
+                </tr>
+                <tr>
+                    <td><code>!translate ES</code> <em>(as a reply)</em></td>
+                    <td><span class="access-badge">Everyone</span></td>
+                    <td>Translates the specific message you replied to into Spanish</td>
+                </tr>
+                <tr>
+                    <td><code>!speak Welcome!</code></td>
+                    <td><span class="access-badge">Configurable</span></td>
+                    <td>Translates the streamer's message into every language active in the session</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <hr class="divider">
+
+    <!-- Footer -->
+    <footer>
+        <span class="footer-logo">🌐 ChatIncluded</span>
+        <p style="margin-bottom: 0.75rem;">Break the language barrier, live.</p>
+        <p>
+            <a href="https://github.com/KiraLovey/chatincluded">GitHub</a>
+            <a href="https://github.com/KiraLovey/chatincluded/issues">Report a Bug</a>
+            <a href="https://casterlabs.co/discord">Casterlabs Discord</a>
+            <a href="https://casterlabs.co">Get Casterlabs</a>
+        </p>
+        <p style="margin-top: 1rem;">Made with ❤️ for multilingual streaming communities.</p>
     </footer>
 
 </body>
