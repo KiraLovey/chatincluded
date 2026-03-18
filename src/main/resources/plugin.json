@@ -1,0 +1,7 @@
+{
+  "id": "com.kiralovey.chatincluded",
+  "version": "1.0.0",
+  "name": "ChatIncluded",
+  "author": "kiralovey",
+  "entry": "com.kiralovey.chatincluded.ChatIncludedPlugin"
+}
