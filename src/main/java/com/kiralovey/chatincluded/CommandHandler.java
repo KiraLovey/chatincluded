@@ -19,6 +19,10 @@ public class CommandHandler {
             + "AR (Arabic), NL (Dutch), PL (Polish), SV (Swedish), TR (Turkish). "
             + "Full list: https://developers.deepl.com/docs/resources/supported-languages";
 
+    private static final String GUIDE_MESSAGE =
+            "ChatIncluded \u2014 Break the language barrier, live. "
+            + "Commands & language codes: https://chatincluded.live/#commands";
+
     private final ChatIncludedPlugin        plugin;
     private final Koi                       koi;
     private final ViewerLanguagePreferences prefs;
@@ -40,6 +44,7 @@ public class CommandHandler {
         if (text == null) return false;
         String lower = text.trim().toLowerCase();
         return lower.startsWith("!chatincluded")
+                || lower.startsWith("!guide")
                 || lower.startsWith("!translate")
                 || lower.startsWith("!setlang")
                 || lower.startsWith("!languages")
@@ -52,7 +57,10 @@ public class CommandHandler {
         UserPlatform up = event.getStreamer().getPlatform();
         String sender   = safeGetDisplayName(event);
 
-        if (lower.startsWith("!chatincluded")) {
+        if (lower.startsWith("!guide")) {
+            sendChat(up, GUIDE_MESSAGE);
+
+        } else if (lower.startsWith("!chatincluded")) {
             sendChat(up, settings.chatIncludedMessage);
 
         } else if (lower.startsWith("!languages")) {
@@ -92,12 +100,11 @@ public class CommandHandler {
         prefs.setManual(sender, code);
         plugin.getLogger().info("Viewer " + sender + " set language preference to " + code);
 
-        // Send confirmation in English first
-        String englishConfirmation = "@" + sender + " Your language has been set to " + code
-                + ". The streamer's replies will be translated for you!";
-        sendChat(up, englishConfirmation);
+        // English confirmation
+        sendChat(up, "@" + sender + " Your language has been set to " + code
+                + ". The streamer's replies will be translated for you!");
 
-        // If the requested language isn't English, also send confirmation in their language
+        // Also send confirmation in their language if not English
         if (!code.startsWith("EN")) {
             DeepLClient deepL = new DeepLClient(settings);
             String messageToTranslate = "Your language has been set to " + code
@@ -106,13 +113,9 @@ public class CommandHandler {
             executor.submit(() ->
                 deepL.translate(messageToTranslate, code)
                     .thenAccept(result -> {
-                        String localConfirmation = "@" + sender + " " + result.translatedText;
-                        sendChat(up, localConfirmation);
-                        plugin.getLogger().info("!setlang confirmation sent in " + code
-                                + " to " + sender);
+                        sendChat(up, "@" + sender + " " + result.translatedText);
                     })
                     .exceptionally(ex -> {
-                        // Non-critical -- English confirmation already sent
                         plugin.getLogger().debug("Could not translate !setlang confirmation: "
                                 + ex.getMessage());
                         return null;
