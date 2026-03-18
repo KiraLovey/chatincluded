@@ -26,6 +26,9 @@ public class ChatIncludedPlugin extends CaffeinatedPlugin {
                 ChatIncludedWidget.class
         );
 
+        // CaffeinatedApp.getInstance().getKoi() is the correct call per ENDERVAmPIRE,
+        // but CaffeinatedApp pulls in internal deps not available at compile time.
+        // We use reflection to call it at runtime instead.
         Koi koi = resolveKoi();
         if (koi == null) {
             getLogger().severe("Could not resolve Koi service -- chat replies will not be sent.");
@@ -38,15 +41,16 @@ public class ChatIncludedPlugin extends CaffeinatedPlugin {
 
         getLogger().info("Ready. Waiting for chat events.");
 
-        // Check for updates asynchronously -- never blocks startup
+        // Check for updates asynchronously
         VersionChecker.checkAsync(this);
     }
 
     private Koi resolveKoi() {
         try {
-            Class<?> appClass = Class.forName("co.casterlabs.caffeinated.app.CaffeinatedApp");
-            Object appInstance = appClass.getMethod("getInstance").invoke(null);
-            Object globalKoi = appClass.getMethod("getKoi").invoke(appInstance);
+            // Equivalent to: CaffeinatedApp.getInstance().getKoi()
+            Class<?> appClass   = Class.forName("co.casterlabs.caffeinated.app.CaffeinatedApp");
+            Object appInstance  = appClass.getMethod("getInstance").invoke(null);
+            Object globalKoi    = appClass.getMethod("getKoi").invoke(appInstance);
             return (Koi) globalKoi;
         } catch (Exception e) {
             getLogger().severe("Failed to resolve Koi via reflection: " + e.getMessage());

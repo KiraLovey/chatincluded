@@ -77,8 +77,6 @@ public class CommandHandler {
         }
     }
 
-    // ── Command implementations ───────────────────────────────────────────────
-
     private void handleSetLang(UserPlatform up, String text, String sender,
                                 PluginSettings settings) {
         String[] parts = text.split("\\s+", 2);
@@ -100,11 +98,9 @@ public class CommandHandler {
         prefs.setManual(sender, code);
         plugin.getLogger().info("Viewer " + sender + " set language preference to " + code);
 
-        // English confirmation
         sendChat(up, "@" + sender + " Your language has been set to " + code
                 + ". The streamer's replies will be translated for you!");
 
-        // Also send confirmation in their language if not English
         if (!code.startsWith("EN")) {
             DeepLClient deepL = new DeepLClient(settings);
             String messageToTranslate = "Your language has been set to " + code
@@ -147,7 +143,6 @@ public class CommandHandler {
         String messageToTranslate = null;
         String sourceContext      = null;
 
-        // 1. Reply target
         String replyTargetId = safeGetReplyTarget(event);
         if (replyTargetId != null) {
             RecentMessageCache.CachedMessage replied = messageCache.getById(replyTargetId);
@@ -157,13 +152,11 @@ public class CommandHandler {
             }
         }
 
-        // 2. Inline text
         if (messageToTranslate == null && parts.length == 3 && !parts[2].isBlank()) {
             messageToTranslate = parts[2].trim();
             sourceContext      = "inline text";
         }
 
-        // 3. Most recent cached message
         if (messageToTranslate == null) {
             RecentMessageCache.CachedMessage recent = messageCache.getMostRecent();
             if (recent != null) {
@@ -191,10 +184,8 @@ public class CommandHandler {
                         sendChat(up, "@" + sender + " That message is already in " + targetCode + "!");
                         return;
                     }
-
                     String reply = "@" + sender + " [" + result.detectedSourceLanguage
                             + "->" + targetCode + "] " + result.translatedText;
-
                     plugin.getLogger().info("!translate (" + finalContext + ") | " + reply);
                     sendChat(up, reply);
                 })
@@ -233,14 +224,12 @@ public class CommandHandler {
 
         for (String langCode : uniqueLangs) {
             if (langCode.equalsIgnoreCase(settings.targetLanguage)) continue;
-
             final String targetCode = langCode;
             executor.submit(() ->
                 deepL.translate(message, targetCode)
                     .thenAccept(result -> {
                         if (result.detectedSourceLanguage.equalsIgnoreCase(targetCode)
                                 || result.detectedSourceLanguage.startsWith(targetCode)) return;
-
                         String reply = "[" + settings.targetLanguage
                                 + "->" + targetCode + "] " + result.translatedText;
                         plugin.getLogger().info("!speak -> " + targetCode + " | " + reply);
@@ -254,8 +243,6 @@ public class CommandHandler {
         }
     }
 
-    // ── Access control ────────────────────────────────────────────────────────
-
     private boolean hasAccess(RichMessageEvent event, String requiredLevel) {
         if ("everyone".equalsIgnoreCase(requiredLevel)) return true;
         if (isStreamer(event)) return true;
@@ -268,9 +255,8 @@ public class CommandHandler {
     }
 
     private boolean isStreamer(RichMessageEvent event) {
-        try {
-            return event.getSender().getUPID().equals(event.getStreamer().getUPID());
-        } catch (Exception e) { return false; }
+        try { return event.getSender().getUPID().equals(event.getStreamer().getUPID()); }
+        catch (Exception e) { return false; }
     }
 
     private boolean isMod(RichMessageEvent event) {
@@ -291,8 +277,6 @@ public class CommandHandler {
             return false;
         } catch (Exception e) { return false; }
     }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private void sendChat(UserPlatform platform, String message) {
         try {
