@@ -363,7 +363,7 @@
 
     <!-- Nav -->
     <nav>
-        <a class="nav-logo" href="/">🌐 ChatIncluded</a>
+        <a class="nav-logo" href="/"><img src="logo.png" alt="ChatIncluded" style="height:32px;width:32px;vertical-align:middle;margin-right:0.5rem;border-radius:50%;">ChatIncluded</a>
         <ul class="nav-links">
             <li><a href="#features">Features</a></li>
             <li><a href="#get-started">Get Started</a></li>
@@ -374,16 +374,32 @@
 
     <!-- Hero -->
     <div class="hero">
+        <img src="logo.png" alt="ChatIncluded Logo"
+             style="width:140px;height:140px;margin-bottom:1.5rem;border-radius:50%;box-shadow:0 0 40px rgba(167,139,250,0.3);">
         <div class="badge">Beta — Free &amp; Open Source</div>
         <h1>Break the language barrier, live.</h1>
         <p class="tagline">Real-time multilingual chat translation for streamers.</p>
+
+        <!-- Prominent download button -->
+        <div style="margin:1.5rem 0;">
+            <a href="https://github.com/KiraLovey/chatincluded/releases/latest/download/chatincluded-1.0.0.jar"
+               download
+               style="display:inline-block;padding:1rem 2.5rem;background:linear-gradient(135deg,#a78bfa,#60a5fa);color:#0a0a0f;font-weight:800;font-size:1.1rem;border-radius:10px;text-decoration:none;box-shadow:0 0 30px rgba(167,139,250,0.4);transition:opacity 0.2s,transform 0.2s;">
+                Download ChatIncluded — Free
+            </a>
+            <p style="margin-top:0.6rem;font-size:0.8rem;color:#666;">
+                v1.0.0 Beta &nbsp;·&nbsp; No Java or Maven required &nbsp;·&nbsp;
+                <a href="#get-started" style="color:#a78bfa;text-decoration:none;">Installation guide ↓</a>
+            </p>
+        </div>
+
         <p class="mission">
             ChatIncluded automatically translates viewer messages and replies across every platform you stream on —
             so every viewer, no matter where they're from, feels included.
         </p>
 
         <div class="hero-buttons">
-            <a class="btn btn-primary" href="https://github.com/KiraLovey/chatincluded/releases/latest/download/chatincluded-1.0.0.jar" download>Download Free</a>
+            <a class="btn btn-secondary" href="#get-started">How to Install</a>
             <a class="btn btn-secondary" href="https://github.com/KiraLovey/chatincluded">View on GitHub</a>
         </div>
 
@@ -470,7 +486,7 @@
                 <div class="step-number">3</div>
                 <div class="step-content">
                     <h3>Download and install ChatIncluded</h3>
-                    <p>Download the latest JAR and run this command in PowerShell to install it:</p>
+                    <p><a href="https://github.com/KiraLovey/chatincluded/releases/latest/download/chatincluded-1.0.0.jar" download style="color:var(--purple);">Download the latest JAR</a> and run this command in PowerShell to install it:</p>
                     <br>
                     <code style="display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.85rem;color:var(--purple);word-break:break-all;">
                         Copy-Item "$env:USERPROFILE\Downloads\chatincluded-1.0.0.jar" "$env:APPDATA\casterlabs-caffeinated\plugins\" -Force
