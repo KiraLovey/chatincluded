@@ -464,14 +464,14 @@
 
         <!-- Prominent download button -->
         <div style="margin:1.5rem 0;">
-            <a href="https://github.com/KiraLovey/chatincluded/releases/latest/download/chatincluded-1.0.0.jar"
+            <a href="https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-Setup.exe"
                download
                style="display:inline-block;padding:1rem 2.5rem;background:linear-gradient(135deg,#a78bfa,#60a5fa);color:#0a0a0f;font-weight:800;font-size:1.1rem;border-radius:10px;text-decoration:none;box-shadow:0 0 30px rgba(167,139,250,0.4);transition:opacity 0.2s,transform 0.2s;">
                 Download ChatIncluded — Free
             </a>
             <p style="margin-top:0.6rem;font-size:0.8rem;color:#666;">
-                v1.0.0 Beta &nbsp;·&nbsp; No Java or Maven required &nbsp;·&nbsp;
-                <a href="#get-started" style="color:#a78bfa;text-decoration:none;">Installation guide ↓</a>
+                v1.0.0 Beta &nbsp;·&nbsp; Windows installer &nbsp;·&nbsp;
+                <a href="#get-started" style="color:#a78bfa;text-decoration:none;">Setup guide ↓</a>
             </p>
         </div>
 
@@ -543,7 +543,7 @@
     <section id="get-started">
         <p class="section-label">Get Started</p>
         <h2 class="section-title">Up and running in minutes</h2>
-        <p class="section-desc">ChatIncluded runs inside Casterlabs Caffeinated. You'll need a few free tools to get set up.</p>
+        <p class="section-desc">ChatIncluded runs inside Casterlabs Caffeinated. The installer handles everything automatically — no terminal commands required.</p>
 
         <div class="steps">
             <div class="step">
@@ -568,18 +568,17 @@
             <div class="step">
                 <div class="step-number">3</div>
                 <div class="step-content">
-                    <h3>Download and install ChatIncluded</h3>
-                    <p><a href="https://github.com/KiraLovey/chatincluded/releases/latest/download/chatincluded-1.0.0.jar" download style="color:var(--purple);">Download the latest JAR</a> and run this command in PowerShell to install it:</p>
-                    <br>
-                    <code style="display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.85rem;color:var(--purple);word-break:break-all;">
-                        Copy-Item "$env:USERPROFILE\Downloads\chatincluded-1.0.0.jar" "$env:APPDATA\casterlabs-caffeinated\plugins\" -Force
-                    </code>
-                    <br>
-                    <p>Then restart Casterlabs completely.</p>
-                    <br>
-                    <a href="https://github.com/KiraLovey/chatincluded/releases/latest/download/chatincluded-1.0.0.jar" download>→ Download chatincluded-1.0.0.jar</a>
-                    &nbsp;·&nbsp;
-                    <a href="https://github.com/KiraLovey/chatincluded" target="_blank">→ View full install guide on GitHub</a>
+                    <h3>Run the ChatIncluded installer</h3>
+                    <p>Download and run <strong>ChatIncluded-Setup.exe</strong>. The installer detects Casterlabs automatically and drops the plugin into the right place. Open (or restart) Casterlabs when it's done.
+                    <br><br>
+                    <a href="https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-Setup.exe" download>→ Download ChatIncluded-Setup.exe (free)</a></p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Enter your DeepL API key</h3>
+                    <p>In Casterlabs, go to <strong>Widgets &amp; Alerts → + → Other → ChatIncluded Settings</strong> and paste your DeepL API key. Translation starts immediately — no restart needed.</p>
                 </div>
             </div>
         </div>
