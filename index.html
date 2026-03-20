@@ -5,25 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatIncluded — Break the language barrier, live.</title>
     <meta name="description" content="ChatIncluded automatically translates multilingual chat in real time across Twitch, Kick, and YouTube. A free Casterlabs plugin for streamers who believe every viewer belongs.">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,500;9..40,600&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --purple: #a78bfa;
-            --blue: #60a5fa;
-            --bg: #0a0a0f;
-            --surface: #13131f;
-            --border: #1e1e2e;
-            --text: #f0f0f0;
-            --muted: #888;
+            --sun-core:    #F5C842;
+            --sun-warm:    #E8A020;
+            --sun-glow:    #FBE27A;
+            --slate-deep:  #1E2B3A;
+            --slate-mid:   #2E4057;
+            --slate-light: #4A6380;
+            --slate-mist:  #8DA8BF;
+            --cream:       #FDF6E3;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            background: var(--slate-deep);
+            color: var(--cream);
             min-height: 100vh;
-            line-height: 1.6;
+            line-height: 1.7;
         }
 
         /* ── Nav ── */
@@ -32,43 +35,27 @@
             justify-content: space-between;
             align-items: center;
             padding: 1.25rem 2rem;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
             position: sticky;
             top: 0;
-            background: rgba(10,10,15,0.92);
+            background: var(--slate-deep);
             backdrop-filter: blur(8px);
             z-index: 100;
         }
 
         .nav-logo {
-            font-size: 1.1rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--purple), var(--blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.15rem;
+            font-weight: 400;
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 1.5rem;
-            list-style: none;
-        }
+        .nav-logo .logo-chat   { color: var(--cream); }
+        .nav-logo .logo-inc    { color: var(--sun-core); }
 
-        .nav-links a {
-            color: var(--muted);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.2s;
-        }
-
-        .nav-links a:hover { color: var(--text); }
-
-        /* Hamburger button — always visible */
         .hamburger {
             display: flex;
             flex-direction: column;
@@ -84,24 +71,15 @@
             display: block;
             width: 24px;
             height: 2px;
-            background: var(--text);
+            background: var(--cream);
             border-radius: 2px;
             transition: all 0.3s;
         }
 
-        .hamburger.open span:nth-child(1) {
-            transform: translateY(7px) rotate(45deg);
-        }
+        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-        .hamburger.open span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .hamburger.open span:nth-child(3) {
-            transform: translateY(-7px) rotate(-45deg);
-        }
-
-        /* Nav dropdown — all screen sizes */
         .nav-links {
             display: none;
             flex-direction: column;
@@ -110,9 +88,10 @@
             top: 100%;
             left: 0;
             right: 0;
-            background: rgba(10,10,15,0.98);
-            border-bottom: 1px solid var(--border);
+            background: var(--slate-deep);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
             padding: 0.5rem 0;
+            list-style: none;
         }
 
         .nav-links.open { display: flex; }
@@ -120,59 +99,128 @@
         .nav-links li a {
             display: block;
             padding: 0.85rem 2rem;
-            font-size: 1rem;
-            color: var(--text);
-            border-bottom: 1px solid var(--border);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--slate-mist);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            transition: color 0.2s;
         }
 
         .nav-links li:last-child a { border-bottom: none; }
+        .nav-links li a:hover { color: var(--sun-core); }
 
         /* ── Hero ── */
+        .hero-wrap {
+            background: linear-gradient(160deg, var(--slate-deep) 40%, var(--slate-mid));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-wrap::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            right: -5%;
+            width: 60%;
+            height: 80%;
+            background: radial-gradient(ellipse, rgba(245,200,66,0.10) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
         .hero {
             text-align: center;
             padding: 6rem 2rem 5rem;
             max-width: 780px;
             margin: 0 auto;
+            position: relative;
         }
 
-        .badge {
+        .hero img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 48px rgba(245,200,66,0.18);
+        }
+
+        .hero h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(2.4rem, 5.5vw, 3.75rem);
+            font-weight: 400;
+            line-height: 1.12;
+            color: var(--cream);
+            margin-bottom: 1.25rem;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            color: var(--sun-core);
+        }
+
+        .hero-sub {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            font-size: clamp(1rem, 2.5vw, 1.15rem);
+            color: var(--slate-mist);
+            max-width: 480px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+
+        /* Download block */
+        .download-block {
+            margin-bottom: 2rem;
+        }
+
+        .btn {
             display: inline-block;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            padding: 0.3rem 1rem;
-            font-size: 0.8rem;
-            color: var(--purple);
-            margin-bottom: 1.75rem;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-
-        h1 {
-            font-size: clamp(2.2rem, 5vw, 3.5rem);
-            font-weight: 800;
-            line-height: 1.15;
-            margin-bottom: 0.75rem;
-            background: linear-gradient(135deg, var(--purple), var(--blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .tagline {
-            font-size: clamp(1rem, 2.5vw, 1.25rem);
-            color: var(--muted);
-            margin-bottom: 0.5rem;
-        }
-
-        .mission {
+            padding: 0.85rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
             font-size: 0.95rem;
-            color: #666;
-            margin-bottom: 2.5rem;
-            max-width: 520px;
-            margin-left: auto;
-            margin-right: auto;
+            letter-spacing: 0.02em;
+            transition: background 0.2s, color 0.2s, transform 0.2s, opacity 0.2s;
         }
+
+        .btn:hover { transform: translateY(-1px); }
+
+        .btn-primary {
+            background: var(--sun-core);
+            color: var(--slate-deep);
+        }
+
+        .btn-primary:hover { background: var(--sun-warm); }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--cream);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-secondary:hover { border-color: rgba(255,255,255,0.4); }
+
+        .btn-download {
+            font-size: 1.05rem;
+            padding: 1rem 2.75rem;
+        }
+
+        .download-meta {
+            margin-top: 0.6rem;
+            font-size: 0.8rem;
+            color: var(--slate-light);
+        }
+
+        .download-meta a {
+            color: var(--slate-mist);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .download-meta a:hover { color: var(--sun-core); }
 
         .hero-buttons {
             display: flex;
@@ -182,112 +230,137 @@
             margin-bottom: 3.5rem;
         }
 
-        .btn {
+        .badge {
             display: inline-block;
-            padding: 0.8rem 1.75rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: opacity 0.2s, transform 0.2s;
-        }
-
-        .btn:hover { opacity: 0.88; transform: translateY(-1px); }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--purple), var(--blue));
-            color: #0a0a0f;
-        }
-
-        .btn-secondary {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--text);
+            background: rgba(245,200,66,0.1);
+            border: 1px solid rgba(245,200,66,0.25);
+            border-radius: 999px;
+            padding: 0.3rem 1rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            font-size: 0.78rem;
+            color: var(--sun-glow);
+            margin-bottom: 2rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
         }
 
         /* ── Platforms ── */
         .platforms {
             display: flex;
-            gap: 0.75rem;
+            gap: 0.65rem;
             justify-content: center;
             flex-wrap: wrap;
         }
 
         .platform-tag {
-            background: var(--surface);
-            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 8px;
-            padding: 0.5rem 1rem;
+            padding: 0.45rem 1rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
             font-size: 0.85rem;
-            color: #ccc;
+            color: var(--slate-mist);
         }
 
         .platform-tag .soon {
-            font-size: 0.7rem;
-            color: #555;
+            font-size: 0.72rem;
+            color: var(--slate-light);
             margin-left: 0.4rem;
+            font-weight: 300;
         }
 
-        /* ── Section ── */
+        .platform-tag.live {
+            border-color: rgba(245,200,66,0.2);
+            color: var(--cream);
+        }
+
+        /* ── Divider ── */
+        .divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            margin: 0 2rem;
+        }
+
+        /* ── Sections ── */
         section {
-            max-width: 900px;
+            max-width: 940px;
             margin: 0 auto;
-            padding: 4rem 2rem;
+            padding: 5rem 2rem;
         }
 
         .section-label {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
             font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--purple);
-            margin-bottom: 0.75rem;
+            letter-spacing: 0.12em;
+            color: var(--sun-core);
+            margin-bottom: 0.85rem;
         }
 
         .section-title {
-            font-size: clamp(1.5rem, 3vw, 2rem);
-            font-weight: 700;
-            margin-bottom: 0.75rem;
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+            font-weight: 400;
+            color: var(--cream);
+            margin-bottom: 0.85rem;
+            line-height: 1.2;
         }
 
         .section-desc {
-            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            color: var(--slate-mist);
             font-size: 1rem;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2.75rem;
             max-width: 560px;
+            line-height: 1.7;
         }
 
-        /* ── Features grid ── */
+        /* ── Feature Cards ── */
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(268px, 1fr));
             gap: 1.25rem;
         }
 
         .feature-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
+            background: var(--slate-mid);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 1.75rem;
+            transition: border-color 0.2s;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(245,200,66,0.2);
         }
 
         .feature-icon {
-            font-size: 1.5rem;
-            margin-bottom: 0.75rem;
+            font-size: 1.4rem;
+            margin-bottom: 0.9rem;
+            color: var(--sun-core);
         }
 
         .feature-card h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 0.4rem;
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--cream);
+            margin-bottom: 0.5rem;
         }
 
         .feature-card p {
-            font-size: 0.875rem;
-            color: var(--muted);
-            line-height: 1.5;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            font-size: 0.88rem;
+            color: var(--slate-mist);
+            line-height: 1.65;
         }
 
-        /* ── Getting started ── */
+        /* ── Steps ── */
         .steps {
             display: flex;
             flex-direction: column;
@@ -296,22 +369,23 @@
 
         .step {
             display: flex;
-            gap: 1.25rem;
+            gap: 1.5rem;
             align-items: flex-start;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
+            background: var(--slate-mid);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 1.75rem;
         }
 
         .step-number {
             flex-shrink: 0;
-            width: 2rem;
-            height: 2rem;
+            width: 2.1rem;
+            height: 2.1rem;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--purple), var(--blue));
-            color: #0a0a0f;
-            font-weight: 700;
+            background: var(--sun-core);
+            color: var(--slate-deep);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
             font-size: 0.9rem;
             display: flex;
             align-items: center;
@@ -319,23 +393,27 @@
         }
 
         .step-content h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 0.3rem;
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--cream);
+            margin-bottom: 0.4rem;
         }
 
         .step-content p {
-            font-size: 0.875rem;
-            color: var(--muted);
-            line-height: 1.5;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            font-size: 0.88rem;
+            color: var(--slate-mist);
+            line-height: 1.65;
         }
 
         .step-content a {
-            color: var(--purple);
+            color: var(--sun-core);
             text-decoration: none;
         }
 
-        .step-content a:hover { text-decoration: underline; }
+        .step-content a:hover { color: var(--sun-warm); text-decoration: underline; }
 
         /* ── Commands ── */
         .commands-table {
@@ -347,94 +425,105 @@
         .commands-table th {
             text-align: left;
             padding: 0.75rem 1rem;
-            color: var(--muted);
-            font-weight: 500;
-            font-size: 0.8rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            color: var(--slate-mist);
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 1px solid var(--border);
+            letter-spacing: 0.08em;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
         }
 
         .commands-table td {
-            padding: 0.9rem 1rem;
-            border-bottom: 1px solid var(--border);
+            padding: 0.95rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
             vertical-align: top;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            color: var(--slate-mist);
         }
 
         .commands-table tr:last-child td { border-bottom: none; }
 
-        .commands-table tr:hover td { background: var(--surface); }
+        .commands-table tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
 
         code {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 0.15rem 0.4rem;
+            background: var(--slate-mid);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 5px;
+            padding: 0.15rem 0.45rem;
             font-family: 'Courier New', monospace;
             font-size: 0.85em;
-            color: var(--purple);
+            color: var(--sun-core);
         }
 
         .access-badge {
             display: inline-block;
-            background: var(--surface);
-            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 999px;
-            padding: 0.15rem 0.6rem;
+            padding: 0.15rem 0.65rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
             font-size: 0.75rem;
-            color: var(--muted);
-        }
-
-        /* ── Divider ── */
-        .divider {
-            border: none;
-            border-top: 1px solid var(--border);
-            margin: 0 2rem;
+            color: var(--slate-mist);
         }
 
         /* ── Footer ── */
         footer {
             text-align: center;
-            padding: 3rem 2rem;
-            color: #555;
-            font-size: 0.85rem;
-            border-top: 1px solid var(--border);
+            padding: 3.5rem 2rem;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            background: var(--slate-deep);
+        }
+
+        .footer-logo {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            display: block;
+            margin-bottom: 0.85rem;
+        }
+
+        .footer-logo .logo-chat { color: var(--cream); }
+        .footer-logo .logo-inc  { color: var(--sun-core); }
+
+        footer p {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            font-size: 0.88rem;
+            color: var(--slate-light);
+            margin-bottom: 0.75rem;
         }
 
         footer a {
-            color: #777;
+            color: var(--slate-mist);
             text-decoration: none;
             margin: 0 0.5rem;
+            font-weight: 300;
+            transition: color 0.2s;
         }
 
-        footer a:hover { color: var(--muted); }
-
-        .footer-logo {
-            font-size: 1rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--purple), var(--blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: block;
-            margin-bottom: 0.75rem;
-        }
+        footer a:hover { color: var(--sun-core); }
     </style>
 </head>
 <body>
 
     <!-- Nav -->
     <nav>
-        <a class="nav-logo" href="/"><img src="logo.png" alt="ChatIncluded" style="height:32px;width:32px;border-radius:50%;">ChatIncluded</a>
+        <a class="nav-logo" href="/">
+            <img src="logo.png" alt="ChatIncluded" style="height:30px;width:30px;border-radius:50%;">
+            <span class="logo-chat">Chat</span><span class="logo-inc">Included</span>
+        </a>
         <button class="hamburger" id="hamburger" aria-label="Menu">
-            <span></span>
-            <span></span>
-            <span></span>
+            <span></span><span></span><span></span>
         </button>
         <ul class="nav-links" id="nav-links">
-            <li><a href="#features" onclick="closeMenu()">Features</a></li>
+            <li><a href="#features"   onclick="closeMenu()">Features</a></li>
             <li><a href="#get-started" onclick="closeMenu()">Get Started</a></li>
-            <li><a href="#commands" onclick="closeMenu()">Commands</a></li>
+            <li><a href="#commands"   onclick="closeMenu()">Commands</a></li>
             <li><a href="https://github.com/KiraLovey/chatincluded" onclick="closeMenu()">GitHub</a></li>
         </ul>
     </nav>
@@ -452,47 +541,42 @@
     </script>
 
     <!-- Hero -->
-    <div class="hero">
-        <img src="logo.png" alt="ChatIncluded Logo"
-             style="width:140px;height:140px;margin-bottom:1.5rem;border-radius:50%;box-shadow:0 0 40px rgba(167,139,250,0.3);">
-        <h1>Break the language barrier, live.</h1>
-        <p class="tagline">Real-time multilingual chat translation for streamers.</p>
+    <div class="hero-wrap">
+        <div class="hero">
+            <img src="logo.png" alt="ChatIncluded Logo">
+            <div class="badge">Beta &mdash; Free &amp; Open Source</div>
+            <h1>Your chat, in every <em>language.</em></h1>
+            <p class="hero-sub">Auto-detects and translates viewer messages in real time on Twitch, Kick, and YouTube. Free forever. No API key storage. Just stream.</p>
 
-        <!-- Prominent download button -->
-        <div style="margin:1.5rem 0;">
-            <a href="https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-Setup.exe"
-               download
-               style="display:inline-block;padding:1rem 2.5rem;background:linear-gradient(135deg,#a78bfa,#60a5fa);color:#0a0a0f;font-weight:800;font-size:1.1rem;border-radius:10px;text-decoration:none;box-shadow:0 0 30px rgba(167,139,250,0.4);transition:opacity 0.2s,transform 0.2s;">
-                Download ChatIncluded — Free
-            </a>
-            <p style="margin-top:0.6rem;font-size:0.8rem;color:#666;">
-                v1.0.0 Beta &nbsp;·&nbsp; Windows installer &nbsp;·&nbsp;
-                <a href="#get-started" style="color:#a78bfa;text-decoration:none;">Setup guide ↓</a>
-            </p>
-            <p style="margin-top:0.4rem;font-size:0.75rem;color:#555;">
-                Free code signing provided by <a href="https://signpath.io" target="_blank" style="color:#777;text-decoration:none;">SignPath.io</a>,
-                certificate by <a href="https://signpath.org" target="_blank" style="color:#777;text-decoration:none;">SignPath Foundation</a>
-                &nbsp;·&nbsp; <a href="/policy.html" style="color:#777;text-decoration:none;">Signing Policy</a>
-            </p>
-        </div>
+            <div class="download-block">
+                <a href="https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-Setup.exe"
+                   download
+                   class="btn btn-primary btn-download">
+                    Download ChatIncluded &mdash; Free
+                </a>
+                <p class="download-meta">
+                    v1.0.0 Beta &nbsp;&middot;&nbsp; Windows installer &nbsp;&middot;&nbsp;
+                    <a href="#get-started">Setup guide &darr;</a>
+                </p>
+                <p class="download-meta" style="margin-top:0.3rem;">
+                    Free code signing by <a href="https://signpath.io" target="_blank">SignPath.io</a>,
+                    certificate by <a href="https://signpath.org" target="_blank">SignPath Foundation</a>
+                    &nbsp;&middot;&nbsp; <a href="/policy.html">Signing Policy</a>
+                </p>
+            </div>
 
-        <div class="badge">Beta — Free &amp; Open Source</div>
-        <p class="mission">
-            ChatIncluded automatically translates viewer messages and replies across every platform you stream on —
-            so every viewer, no matter where they're from, feels included.
-        </p>
+            <div class="hero-buttons">
+                <a class="btn btn-secondary" href="#get-started">How to Install</a>
+                <a class="btn btn-secondary" href="https://github.com/KiraLovey/chatincluded">View on GitHub</a>
+            </div>
 
-        <div class="hero-buttons">
-            <a class="btn btn-secondary" href="#get-started">How to Install</a>
-            <a class="btn btn-secondary" href="https://github.com/KiraLovey/chatincluded">View on GitHub</a>
-        </div>
-
-        <div class="platforms">
-            <div class="platform-tag">✅ Twitch</div>
-            <div class="platform-tag">✅ Kick</div>
-            <div class="platform-tag">✅ YouTube</div>
-            <div class="platform-tag">Trovo <span class="soon">coming soon</span></div>
-            <div class="platform-tag">TikTok <span class="soon">coming soon</span></div>
+            <div class="platforms">
+                <div class="platform-tag live">&#10003; Twitch</div>
+                <div class="platform-tag live">&#10003; Kick</div>
+                <div class="platform-tag live">&#10003; YouTube</div>
+                <div class="platform-tag">Trovo <span class="soon">coming soon</span></div>
+                <div class="platform-tag">TikTok <span class="soon">coming soon</span></div>
+            </div>
         </div>
     </div>
 
@@ -506,34 +590,34 @@
 
         <div class="features-grid">
             <div class="feature-card">
-                <div class="feature-icon">🔤</div>
+                <div class="feature-icon">&#128292;</div>
                 <h3>Auto-Translation</h3>
                 <p>Detects viewer language automatically and translates to your language in real time. No commands needed.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">💬</div>
+                <div class="feature-icon">&#128172;</div>
                 <h3>Two-Way Conversation</h3>
                 <p>@mention a viewer and your reply is automatically translated back into their language. Real conversations, not just one-way output.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">🤖</div>
+                <div class="feature-icon">&#129302;</div>
                 <h3>Smart Emote Handling</h3>
                 <p>Emotes and emoji are never mistranslated. ChatIncluded reads Casterlabs' message fragments to skip non-text content on all platforms.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">🛡️</div>
+                <div class="feature-icon">&#128737;</div>
                 <h3>Bot Exclusion List</h3>
-                <p>Add your bots by username and ChatIncluded will ignore them completely. Fossabot, StreamElements, Nightbot — all handled.</p>
+                <p>Add your bots by username and ChatIncluded will ignore them completely. Fossabot, StreamElements, Nightbot &mdash; all handled.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">🌍</div>
+                <div class="feature-icon">&#127758;</div>
                 <h3>Multi-Platform</h3>
                 <p>Translates simultaneously across Twitch, Kick, and YouTube in a single session. Deduplication prevents the same message being translated twice.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">⚙️</div>
+                <div class="feature-icon">&#9881;</div>
                 <h3>Fully Configurable</h3>
-                <p>Every feature has a toggle. Attribution, platform on/off switches, cooldowns, burst limits, and more — all in the Casterlabs widget panel.</p>
+                <p>Every feature has a toggle. Attribution, platform on/off switches, cooldowns, burst limits, and more &mdash; all in the Casterlabs widget panel.</p>
             </div>
         </div>
     </section>
@@ -544,26 +628,26 @@
     <section id="get-started">
         <p class="section-label">Get Started</p>
         <h2 class="section-title">Up and running in minutes</h2>
-        <p class="section-desc">ChatIncluded runs inside Casterlabs Caffeinated. The installer handles everything automatically — no terminal commands required.</p>
+        <p class="section-desc">ChatIncluded runs inside Casterlabs Caffeinated. The installer handles everything automatically &mdash; no terminal commands required.</p>
 
         <div class="steps">
             <div class="step">
                 <div class="step-number">1</div>
                 <div class="step-content">
                     <h3>Download Casterlabs Caffeinated</h3>
-                    <p>ChatIncluded is a plugin for Casterlabs — a free multi-streaming app that connects Twitch, Kick, YouTube, and more in one place.
+                    <p>ChatIncluded is a plugin for Casterlabs &mdash; a free multi-streaming app that connects Twitch, Kick, YouTube, and more in one place.
                     <br><br>
-                    <a href="https://casterlabs.co" target="_blank">→ Download Casterlabs Caffeinated (free)</a></p>
+                    <a href="https://casterlabs.co" target="_blank">&rarr; Download Casterlabs Caffeinated (free)</a></p>
                 </div>
             </div>
             <div class="step">
                 <div class="step-number">2</div>
                 <div class="step-content">
                     <h3>Get a free DeepL API key</h3>
-                    <p>ChatIncluded uses DeepL for translations — one of the most accurate translation services available.
-                    A free account gives you 500,000 characters per month.
+                    <p>ChatIncluded uses DeepL for translations &mdash; one of the most accurate translation services available.
+                    A free account gives you 500,000 characters per month. Your key stays on your machine; ChatIncluded never holds it.
                     <br><br>
-                    <a href="https://www.deepl.com/pro-api" target="_blank">→ Create a free DeepL account</a></p>
+                    <a href="https://www.deepl.com/pro-api" target="_blank">&rarr; Create a free DeepL account</a></p>
                 </div>
             </div>
             <div class="step">
@@ -572,14 +656,14 @@
                     <h3>Run the ChatIncluded installer</h3>
                     <p>Download and run <strong>ChatIncluded-Setup.exe</strong>. The installer detects Casterlabs automatically and drops the plugin into the right place. Open (or restart) Casterlabs when it's done.
                     <br><br>
-                    <a href="https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-Setup.exe" download>→ Download ChatIncluded-Setup.exe (free)</a></p>
+                    <a href="https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-Setup.exe" download>&rarr; Download ChatIncluded-Setup.exe (free)</a></p>
                 </div>
             </div>
             <div class="step">
                 <div class="step-number">4</div>
                 <div class="step-content">
                     <h3>Enter your DeepL API key</h3>
-                    <p>In Casterlabs, go to <strong>Widgets &amp; Alerts → + → Other → ChatIncluded Settings</strong> and paste your DeepL API key. Translation starts immediately — no restart needed.</p>
+                    <p>In Casterlabs, go to <strong>Widgets &amp; Alerts &rarr; + &rarr; Other &rarr; ChatIncluded Settings</strong> and paste your DeepL API key. Translation starts immediately &mdash; no restart needed.</p>
                 </div>
             </div>
         </div>
@@ -645,8 +729,10 @@
 
     <!-- Footer -->
     <footer>
-        <span class="footer-logo">🌐 ChatIncluded</span>
-        <p style="margin-bottom: 0.75rem;">Break the language barrier, live.</p>
+        <span class="footer-logo">
+            <span class="logo-chat">Chat</span><span class="logo-inc">Included</span>
+        </span>
+        <p>Break the language barrier, live.</p>
         <p>
             <a href="https://github.com/KiraLovey/chatincluded">GitHub</a>
             <a href="https://github.com/KiraLovey/chatincluded/issues">Report a Bug</a>
@@ -655,7 +741,7 @@
             <a href="https://casterlabs.co">Get Casterlabs</a>
             <a href="/policy.html">Code Signing Policy</a>
         </p>
-        <p style="margin-top: 1rem;">Made with ❤️ for multilingual streaming communities.</p>
+        <p style="margin-top:1rem;">Made with care for multilingual streaming communities.</p>
     </footer>
 
 </body>
