@@ -219,7 +219,6 @@ public class CommandHandler {
         }
 
         Set<String> uniqueLangs = new LinkedHashSet<>(prefs.getActiveLanguages());
-        UserPlatform up         = event.getStreamer().getPlatform();
         DeepLClient deepL       = new DeepLClient(settings);
 
         for (String langCode : uniqueLangs) {
@@ -233,7 +232,7 @@ public class CommandHandler {
                         String reply = "[" + settings.targetLanguage
                                 + "->" + targetCode + "] " + result.translatedText;
                         plugin.getLogger().info("!speak -> " + targetCode + " | " + reply);
-                        sendChat(up, reply);
+                        broadcastChat(reply, settings);
                     })
                     .exceptionally(ex -> {
                         plugin.getLogger().severe("!speak error for " + targetCode + ": " + ex.getMessage());
@@ -284,6 +283,13 @@ public class CommandHandler {
         } catch (Exception e) {
             plugin.getLogger().severe("CommandHandler failed to send: " + e.getMessage());
         }
+    }
+
+    private void broadcastChat(String message, PluginSettings settings) {
+        if (settings.twitchEnabled)  sendChat(UserPlatform.TWITCH,  message);
+        if (settings.kickEnabled)    sendChat(UserPlatform.KICK,    message);
+        if (settings.youtubeEnabled) sendChat(UserPlatform.YOUTUBE, message);
+        if (settings.trovoEnabled)   sendChat(UserPlatform.TROVO,   message);
     }
 
     private String safeGetDisplayName(RichMessageEvent event) {
