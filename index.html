@@ -48,6 +48,9 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .nav-links {
@@ -64,6 +67,69 @@
         }
 
         .nav-links a:hover { color: var(--text); }
+
+        /* Hamburger button */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            z-index: 200;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .hamburger.open span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+
+        .hamburger.open span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.open span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
+        /* Mobile nav */
+        @media (max-width: 600px) {
+            .hamburger { display: flex; }
+
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                gap: 0;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(10,10,15,0.98);
+                border-bottom: 1px solid var(--border);
+                padding: 0.5rem 0;
+            }
+
+            .nav-links.open { display: flex; }
+
+            .nav-links li a {
+                display: block;
+                padding: 0.85rem 2rem;
+                font-size: 1rem;
+                color: var(--text);
+                border-bottom: 1px solid var(--border);
+            }
+
+            .nav-links li:last-child a { border-bottom: none; }
+        }
 
         /* ── Hero ── */
         .hero {
@@ -363,14 +429,31 @@
 
     <!-- Nav -->
     <nav>
-        <a class="nav-logo" href="/"><img src="logo.png" alt="ChatIncluded" style="height:32px;width:32px;vertical-align:middle;margin-right:0.5rem;border-radius:50%;">ChatIncluded</a>
-        <ul class="nav-links">
-            <li><a href="#features">Features</a></li>
-            <li><a href="#get-started">Get Started</a></li>
-            <li><a href="#commands">Commands</a></li>
-            <li><a href="https://github.com/KiraLovey/chatincluded">GitHub</a></li>
+        <a class="nav-logo" href="/"><img src="logo.png" alt="ChatIncluded" style="height:32px;width:32px;border-radius:50%;">ChatIncluded</a>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="#features" onclick="closeMenu()">Features</a></li>
+            <li><a href="#get-started" onclick="closeMenu()">Get Started</a></li>
+            <li><a href="#commands" onclick="closeMenu()">Commands</a></li>
+            <li><a href="https://github.com/KiraLovey/chatincluded" onclick="closeMenu()">GitHub</a></li>
         </ul>
     </nav>
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navLinks  = document.getElementById('nav-links');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('open');
+            navLinks.classList.toggle('open');
+        });
+        function closeMenu() {
+            hamburger.classList.remove('open');
+            navLinks.classList.remove('open');
+        }
+    </script>
 
     <!-- Hero -->
     <div class="hero">
