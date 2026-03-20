@@ -33,12 +33,11 @@ jobs:
         run: Copy-Item target\chatincluded-1.0.0.jar chatincluded-1.0.0.jar -Force
         shell: pwsh
 
-      - name: Install NSIS
-        run: choco install nsis --no-progress -y
-        shell: pwsh
-
-      - name: Build installer
-        run: makensis ChatIncludedInstaller.nsi
+      - name: Install NSIS and build installer
+        run: |
+          choco install nsis --no-progress -y
+          $env:Path += ";C:\Program Files (x86)\NSIS"
+          makensis ChatIncludedInstaller.nsi
         shell: pwsh
 
       - name: Upload unsigned installer as artifact
