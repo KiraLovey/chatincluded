@@ -22,14 +22,7 @@ jobs:
           java-version: '11'
 
       - name: Install Casterlabs SDK into local Maven repo
-        run: |
-          mvn install:install-file `
-            -Dfile=libs/plugin_sdk-1.2.jar `
-            -DgroupId=co.casterlabs.caffeinated `
-            -DartifactId=plugin_sdk `
-            -Dversion=1.2 `
-            -Dpackaging=jar `
-            -DgeneratePom=true
+        run: mvn install:install-file -Dfile=libs/plugin_sdk-1.2.jar -DgroupId=co.casterlabs.caffeinated -DartifactId=plugin_sdk -Dversion=1.2 -Dpackaging=jar -DgeneratePom=true
         shell: pwsh
 
       - name: Build plugin JAR
