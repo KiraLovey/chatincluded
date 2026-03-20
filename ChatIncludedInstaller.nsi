@@ -126,12 +126,8 @@ FunctionEnd
 
 ;--------------------------------
 ; Check Casterlabs page
-; Uses FindFirst to scan casterlabs* dirs under LOCALAPPDATA and APPDATA,
-; checking several known exe names so it works regardless of exact naming.
-
-Var CheckDialog
-Var CheckLabel
-Var DownloadLink
+; Scans all known install locations. If found, skips this page and proceeds.
+; If not found, shows a message box, opens casterlabs.co, then quits.
 
 Function CheckCasterlabsPage
     StrCpy $CasterlabsFound "0"
@@ -211,44 +207,16 @@ Function CheckCasterlabsPage
         StrCpy $CasterlabsExe "$PROGRAMFILES64\Casterlabs Caffeinated\Casterlabs Caffeinated.exe"
     ${EndIf}
 
-    ; Skip warning page if found
+    ; Found — skip this page and continue to install
     ${If} $CasterlabsFound == "1"
         Abort
     ${EndIf}
 
-    nsDialogs::Create 1018
-    Pop $CheckDialog
-    ${If} $CheckDialog == error
-        Abort
-    ${EndIf}
-
-    SetCtlColors $HWNDPARENT "F0F0F0" "0A0A0F"
-    SetCtlColors $CheckDialog "F0F0F0" "0A0A0F"
-
-    ${NSD_CreateLabel} 10u 12u 280u 16u "Casterlabs Not Found"
-    Pop $CheckLabel
-    SetCtlColors $CheckLabel "FF6B6B" "0A0A0F"
-    CreateFont $0 "Segoe UI" 14 700
-    SendMessage $CheckLabel ${WM_SETFONT} $0 0
-
-    ${NSD_CreateLabel} 10u 34u 280u 55u "ChatIncluded requires Casterlabs Caffeinated to be installed first. Please download and install Casterlabs, then run this installer again."
-    Pop $0
-    SetCtlColors $0 "CCCCCC" "0A0A0F"
-    CreateFont $1 "Segoe UI" 9 400
-    SendMessage $0 ${WM_SETFONT} $1 0
-
-    ${NSD_CreateLink} 10u 95u 220u 12u "Download Casterlabs Caffeinated (free)"
-    Pop $DownloadLink
-    SendMessage $DownloadLink ${WM_SETFONT} $1 0
-
-    GetFunctionAddress $0 DownloadCasterlabs
-    nsDialogs::OnClick $DownloadLink $0
-
-    nsDialogs::Show
-FunctionEnd
-
-Function DownloadCasterlabs
+    ; Not found — tell the user, open casterlabs.co, then cancel
+    MessageBox MB_OK|MB_ICONEXCLAMATION \
+        "Casterlabs Caffeinated is not installed.$\r$\n$\r$\nChatIncluded requires Casterlabs to run. Please install Casterlabs first, then run this installer again.$\r$\n$\r$\ncasterlabs.co will open in your browser."
     ExecShell "open" "https://casterlabs.co"
+    Quit
 FunctionEnd
 
 ;--------------------------------
