@@ -1,0 +1,96 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: Build installer
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Install Casterlabs SDK into local Maven repo
+        run: |
+          mvn install:install-file `
+            -Dfile=libs/plugin_sdk-1.2.jar `
+            -DgroupId=co.casterlabs.caffeinated `
+            -DartifactId=plugin_sdk `
+            -Dversion=1.2 `
+            -Dpackaging=jar `
+            -DgeneratePom=true
+        shell: pwsh
+
+      - name: Build plugin JAR
+        run: mvn clean package -B
+        shell: pwsh
+
+      - name: Copy JAR to installer directory
+        run: Copy-Item target\chatincluded-1.0.0.jar chatincluded-1.0.0.jar -Force
+        shell: pwsh
+
+      - name: Install NSIS
+        run: choco install nsis --no-progress -y
+        shell: pwsh
+
+      - name: Build installer
+        run: makensis ChatIncludedInstaller.nsi
+        shell: pwsh
+
+      - name: Upload unsigned installer as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChatIncluded-Setup-unsigned
+          path: ChatIncluded-Setup.exe
+          retention-days: 7
+
+  sign-and-release:
+    name: Sign & publish
+    needs: build
+    runs-on: ubuntu-latest
+    # Only runs on a published GitHub Release (tag push)
+    if: github.event_name == 'release'
+
+    steps:
+      - name: Download unsigned installer
+        uses: actions/download-artifact@v4
+        with:
+          name: ChatIncluded-Setup-unsigned
+
+      # ----------------------------------------------------------------
+      # SignPath code signing
+      # Requires these repository secrets (Settings → Secrets → Actions):
+      #   SIGNPATH_API_TOKEN        — generated in SignPath under your org
+      #   SIGNPATH_ORGANIZATION_ID  — shown in SignPath org settings
+      # And these values filled in below once your project is approved:
+      #   project-slug              — set when you create the project in SignPath
+      #   signing-policy-slug       — e.g. "release-signing"
+      #   artifact-configuration-slug — e.g. "chatincluded-setup"
+      # ----------------------------------------------------------------
+      - name: Submit signing request to SignPath
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: chatincluded
+          signing-policy-slug: release-signing
+          artifact-configuration-slug: chatincluded-setup
+          github-artifact-id: ChatIncluded-Setup-unsigned
+          wait-for-completion: true
+          output-artifact-directory: signed
+
+      - name: Upload signed installer to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: signed/ChatIncluded-Setup.exe
