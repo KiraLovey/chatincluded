@@ -5,7 +5,7 @@
 
 It works seamlessly across **Twitch**, **Kick**, and **YouTube** simultaneously, making it perfect for multi-streamers with international audiences. Trovo and TikTok support coming soon.
 
-🌐 **[chatincluded.live](https://chatincluded.live)** — Full documentation, commands reference, and download guide
+🌐 **[chatincluded.live](https://chatincluded.live)** — Full documentation, commands reference, and download
 
 > ⚠️ **Beta** — Core functionality is stable and actively tested. Feedback welcome via the [Casterlabs Discord](https://casterlabs.co/discord)!
 
@@ -27,22 +27,16 @@ It works seamlessly across **Twitch**, **Kick**, and **YouTube** simultaneously,
 
 ## Requirements
 
-Before installing ChatIncluded, you need four things:
-
 | Tool | What it is | Download |
 |------|-----------|----------|
 | [Casterlabs Caffeinated](https://casterlabs.co) | The streaming app ChatIncluded runs inside | casterlabs.co |
-| [Java JDK 17+](https://adoptium.net) | The programming language ChatIncluded is built with | adoptium.net |
-| [Apache Maven](https://maven.apache.org/download.cgi) | The build tool that compiles the plugin | maven.apache.org |
 | [DeepL API account](https://www.deepl.com/pro-api) | The translation service ChatIncluded uses | deepl.com |
 
 > A **free** DeepL API account gives you 500,000 characters/month — plenty for most streamers.
 
 ---
 
-## Installation Guide
-
-> **New to terminals?** A terminal is a text-based way to talk to your computer. On Windows, press **Windows key + R**, type `powershell`, and press Enter. This opens PowerShell — you type a command and press Enter to run it. That's all there is to it!
+## Installation
 
 ### Step 1 — Download Casterlabs Caffeinated
 
@@ -50,91 +44,24 @@ ChatIncluded runs as a plugin inside Casterlabs. If you don't have it yet:
 
 1. Go to [casterlabs.co](https://casterlabs.co) and download Caffeinated
 2. Install and sign in with your streaming accounts
-3. Come back here once Casterlabs is running
 
 ### Step 2 — Get a DeepL API Key
 
 1. Go to [deepl.com/pro-api](https://www.deepl.com/pro-api) and create a free account
 2. After signing in, click your account name → **Account**
-3. Scroll down to find your **Authentication Key** and copy it — you'll need it later
-4. Note whether you signed up for **Free** or **Pro**:
-   - Free accounts use `api-free.deepl.com`
-   - Pro accounts use `api.deepl.com`
+3. Scroll down to find your **Authentication Key** and copy it — you'll need it in Step 4
 
-### Step 3 — Install Java
+### Step 3 — Run the ChatIncluded Installer
 
-1. Go to [adoptium.net](https://adoptium.net) and click the **Latest LTS Release** download button
-2. Run the installer using all the default options
-3. Open PowerShell and confirm it worked:
-   ```powershell
-   java -version
-   ```
-   You should see something like `openjdk version "21.x.x"`
+1. [**Download ChatIncluded-Setup.exe**](https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-Setup.exe)
+2. Run the installer — it detects Casterlabs automatically and drops the plugin into the right place
+3. Open (or restart) Casterlabs when the installer finishes
 
-### Step 4 — Install Maven
-
-1. Go to [maven.apache.org/download.cgi](https://maven.apache.org/download.cgi)
-2. Download the **Binary zip archive** (the file ending in `-bin.zip`)
-3. Extract it to `C:\Program Files\Maven`
-4. Add Maven to your PATH:
-   - Press **Windows key**, search **Environment Variables**, open it
-   - Under **System Variables**, find **Path** → click **Edit**
-   - Click **New** and add `C:\Program Files\Maven\bin`
-   - Click OK on all windows
-5. Close and reopen PowerShell, then confirm:
-   ```powershell
-   mvn -version
-   ```
-
-### Step 5 — Install Git
-
-1. Go to [git-scm.com/download/win](https://git-scm.com/download/win) and download the installer
-2. Run it using all the default options
-3. Close and reopen PowerShell after installing
-
-### Step 6 — Download ChatIncluded
-
-Open PowerShell and run these commands one at a time:
-
-```powershell
-cd C:\
-mkdir ChatIncluded
-cd ChatIncluded
-git clone https://github.com/KiraLovey/chatincluded.git .
-```
-
-This downloads all the ChatIncluded files to `C:\ChatIncluded`.
-
-### Step 7 — Register the Casterlabs SDK
-
-```powershell
-mvn install:install-file "-Dfile=$env:APPDATA\casterlabs-caffeinated\app\Caffeinated.jar" "-DgroupId=co.casterlabs.caffeinated" "-DartifactId=plugin_sdk" "-Dversion=1.2" "-Dpackaging=jar"
-```
-
-You should see `BUILD SUCCESS`. You only need to do this once per computer.
-
-### Step 8 — Build the Plugin
-
-```powershell
-cd C:\ChatIncluded
-mvn clean package
-```
-
-When it finishes you should see `BUILD SUCCESS`.
-
-### Step 9 — Install the Plugin
-
-```powershell
-Copy-Item "target\chatincluded-1.0.0.jar" "$env:APPDATA\casterlabs-caffeinated\plugins\" -Force
-```
-
-**Fully close and reopen Casterlabs** (make sure it's not just minimized to the system tray).
-
-### Step 10 — Configure the Plugin
+### Step 4 — Configure the Plugin
 
 1. In Casterlabs, go to **Widgets & Alerts**
 2. Click the **+** button → **Other** → **ChatIncluded Settings**
-3. Go to the **DeepL API** tab and enter your API key and plan type
+3. Go to the **DeepL API** tab and enter your API key and plan type (Free or Pro)
 4. Go to the **Language** tab and set your **Target Language Code** (e.g. `EN` for English)
 5. Settings save automatically — there is no Save button
 
@@ -153,16 +80,7 @@ When a new version is available, ChatIncluded will notify you in the Casterlabs 
 [ChatIncluded] Update guide    : https://chatincluded.live
 ```
 
-To update, open PowerShell and run:
-
-```powershell
-cd C:\ChatIncluded
-git pull
-mvn clean package
-Copy-Item "target\chatincluded-1.0.0.jar" "$env:APPDATA\casterlabs-caffeinated\plugins\" -Force
-```
-
-Then restart Casterlabs. Your settings are preserved automatically.
+To update, [download and run the latest installer](https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-Setup.exe). It overwrites the existing plugin file automatically. Your settings are preserved.
 
 ---
 
@@ -269,16 +187,16 @@ Full list: [DeepL Supported Languages](https://developers.deepl.com/docs/resourc
 
 ---
 
-## Troubleshoded
+## Troubleshooting
 
 **Plugin shows in the list but won't load**
-Make sure you ran `mvn clean package`, copied the JAR, and fully restarted Casterlabs.
+Fully close Casterlabs (including from the system tray) and reopen it. If the issue persists, re-run the installer.
 
 **"Authorization header is missing API key"**
 Make sure you created a ChatIncluded Settings widget and entered your API key. Check that API Plan matches your DeepL account type.
 
 **Emotes are being translated**
-Make sure you are on the latest version. Run `git pull` then rebuild.
+Make sure you are on the latest version. Re-run the installer to update.
 
 **Single words are being mistranslated**
 Go to ChatIncluded Settings → Performance and increase the Minimum Message Length.
@@ -309,15 +227,18 @@ A normal HTTP/2 network hiccup affecting only that one message. The plugin conti
 - [x] Attribution toggle
 - [x] Minimum message length filter
 - [x] Update notifications on startup
+- [x] Windows installer (ChatIncluded-Setup.exe)
+- [x] chatincluded.live — website with documentation
+- [ ] Code signing (in progress)
 - [ ] Trovo support
 - [ ] TikTok support
-- [ ] chatincluded.live full website with documentation
 - [ ] Persistent viewer language preferences across streams
 
 ---
 
 ## Security
 
+- The installer (`ChatIncluded-Setup.exe`) is signed — see [chatincluded.live/policy.html](https://chatincluded.live/policy.html) for the code signing policy
 - Your DeepL API key is stored inside Casterlabs — ChatIncluded never writes it to any file
 - Avoid sharing Casterlabs log files (`%appdata%\casterlabs-caffeinated\logs\`) during debug sessions
 - If your API key is ever exposed, regenerate it at [deepl.com/account](https://www.deepl.com/account)
