@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Signing Policy — ChatIncluded</title>
+    <meta name="description" content="ChatIncluded code signing policy: what is signed, who approves it, how to verify, and how the project uses SignPath Foundation.">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --purple: #a78bfa;
+            --blue: #60a5fa;
+            --bg: #0a0a0f;
+            --surface: #13131f;
+            --border: #1e1e2e;
+            --text: #f0f0f0;
+            --muted: #888;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ── Nav ── */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: rgba(10,10,15,0.92);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+        }
+
+        .nav-logo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--text); }
+
+        /* Hamburger button */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            z-index: 200;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        @media (max-width: 600px) {
+            .hamburger { display: flex; }
+
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                gap: 0;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(10,10,15,0.98);
+                border-bottom: 1px solid var(--border);
+                padding: 0.5rem 0;
+            }
+
+            .nav-links.open { display: flex; }
+
+            .nav-links li a {
+                display: block;
+                padding: 0.85rem 2rem;
+                font-size: 1rem;
+                color: var(--text);
+                border-bottom: 1px solid var(--border);
+            }
+
+            .nav-links li:last-child a { border-bottom: none; }
+        }
+
+        /* ── Page header ── */
+        .page-header {
+            text-align: center;
+            padding: 5rem 2rem 3rem;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 0.3rem 1rem;
+            font-size: 0.8rem;
+            color: var(--purple);
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 4vw, 2.75rem);
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-header p {
+            color: var(--muted);
+            font-size: 1rem;
+        }
+
+        /* ── Content ── */
+        .content {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 1rem 2rem 5rem;
+        }
+
+        .policy-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .section-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--purple);
+            margin-bottom: 0.5rem;
+        }
+
+        .policy-section h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .policy-section p,
+        .policy-section li {
+            font-size: 0.9rem;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .policy-section ul,
+        .policy-section ol {
+            padding-left: 1.4rem;
+            margin-top: 0.5rem;
+        }
+
+        .policy-section li { margin-bottom: 0.35rem; }
+
+        .policy-section a {
+            color: var(--purple);
+            text-decoration: none;
+        }
+
+        .policy-section a:hover { text-decoration: underline; }
+
+        code {
+            background: #0a0a0f;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.15rem 0.4rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.83em;
+            color: var(--purple);
+        }
+
+        .info-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.75rem;
+        }
+
+        .info-chip {
+            background: #0a0a0f;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+
+        .info-chip strong {
+            color: var(--text);
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.2rem;
+        }
+
+        /* ── Divider ── */
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 0 2rem;
+        }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #555;
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+        }
+
+        footer a {
+            color: #777;
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+        footer a:hover { color: var(--muted); }
+
+        .footer-logo {
+            font-size: 1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            margin-bottom: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav -->
+    <nav>
+        <a class="nav-logo" href="/"><img src="logo.png" alt="ChatIncluded" style="height:32px;width:32px;border-radius:50%;">ChatIncluded</a>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="/#features" onclick="closeMenu()">Features</a></li>
+            <li><a href="/#get-started" onclick="closeMenu()">Get Started</a></li>
+            <li><a href="/#commands" onclick="closeMenu()">Commands</a></li>
+            <li><a href="https://github.com/KiraLovey/chatincluded" onclick="closeMenu()">GitHub</a></li>
+        </ul>
+    </nav>
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navLinks  = document.getElementById('nav-links');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('open');
+            navLinks.classList.toggle('open');
+        });
+        function closeMenu() {
+            hamburger.classList.remove('open');
+            navLinks.classList.remove('open');
+        }
+    </script>
+
+    <!-- Page header -->
+    <div class="page-header">
+        <div class="badge">Trust &amp; Security</div>
+        <h1>Code Signing Policy</h1>
+        <p>How ChatIncluded releases are signed, who authorizes them, and how you can verify them.</p>
+    </div>
+
+    <div class="content">
+
+        <!-- 1. Overview -->
+        <div class="policy-section">
+            <p class="section-label">1 — Overview</p>
+            <h2>What this policy covers</h2>
+            <p>
+                ChatIncluded is a free, open-source Windows plugin for Casterlabs Caffeinated maintained by
+                <a href="https://github.com/KiraLovey" target="_blank">KiraLovey</a>.
+                This policy describes which release artifacts are digitally signed, who may authorize a signing request,
+                how signing is performed, and how users can independently verify a signature.
+            </p>
+            <p style="margin-top:0.75rem;">
+                Code signing prevents Windows SmartScreen from warning users about unknown publishers and lets anyone
+                confirm that a downloaded file was built by this project and has not been tampered with in transit.
+            </p>
+        </div>
+
+        <!-- 2. Scope -->
+        <div class="policy-section">
+            <p class="section-label">2 — Scope</p>
+            <h2>What gets signed</h2>
+            <p>The following artifact is signed for every public release:</p>
+            <ul style="margin-top:0.75rem;">
+                <li><code>ChatIncluded-Setup.exe</code> — the Windows installer distributed via GitHub Releases</li>
+            </ul>
+            <p style="margin-top:0.75rem;">
+                Intermediate build artifacts (JAR files, object files, debug builds) are <strong style="color:var(--text);">not</strong> signed.
+                Only the final installer presented to end users carries a signature.
+            </p>
+        </div>
+
+        <!-- 3. Team -->
+        <div class="policy-section">
+            <p class="section-label">3 — Team &amp; Responsibilities</p>
+            <h2>Who authorizes signing</h2>
+            <p>ChatIncluded is a sole-maintainer project. All roles are held by one person:</p>
+            <div class="info-row">
+                <div class="info-chip">
+                    <strong>Author / Maintainer</strong>
+                    KiraLovey
+                </div>
+                <div class="info-chip">
+                    <strong>Signing Approver</strong>
+                    KiraLovey
+                </div>
+                <div class="info-chip">
+                    <strong>GitHub</strong>
+                    <a href="https://github.com/KiraLovey" target="_blank">github.com/KiraLovey</a>
+                </div>
+            </div>
+            <p style="margin-top:1rem;">
+                No signing request may be submitted without the explicit approval of the maintainer.
+                There are no automated or unattended signing pipelines — every release is manually reviewed before signing.
+            </p>
+        </div>
+
+        <!-- 4. Signing process -->
+        <div class="policy-section">
+            <p class="section-label">4 — Signing Process</p>
+            <h2>How a release is signed</h2>
+            <ol>
+                <li>The maintainer builds the release installer locally using NSIS.</li>
+                <li>The resulting <code>ChatIncluded-Setup.exe</code> is reviewed to confirm it matches the intended source.</li>
+                <li>A signing request is submitted to <a href="https://signpath.io" target="_blank">SignPath Foundation</a>,
+                    which provides free code signing certificates to qualifying open-source projects.</li>
+                <li>SignPath signs the artifact using an Extended Validation (EV) or Organization Validation (OV)
+                    Authenticode certificate issued by a trusted Certificate Authority.</li>
+                <li>The signed installer is uploaded to the
+                    <a href="https://github.com/KiraLovey/chatincluded/releases" target="_blank">GitHub Releases page</a>
+                    and to the repository root for direct download.</li>
+            </ol>
+            <p style="margin-top:0.75rem;">
+                The private signing key is held exclusively by SignPath Foundation and is never accessible to the maintainer,
+                eliminating the risk of key theft or misuse.
+            </p>
+        </div>
+
+        <!-- 5. Verification -->
+        <div class="policy-section">
+            <p class="section-label">5 — Verification</p>
+            <h2>How to verify a signature</h2>
+            <p>You can verify the digital signature of any ChatIncluded installer before running it:</p>
+
+            <p style="margin-top:1rem;color:var(--text);font-size:0.88rem;font-weight:600;">Option A — Windows Explorer</p>
+            <ol style="margin-top:0.4rem;">
+                <li>Right-click <code>ChatIncluded-Setup.exe</code> and choose <strong style="color:var(--text);">Properties</strong>.</li>
+                <li>Click the <strong style="color:var(--text);">Digital Signatures</strong> tab.</li>
+                <li>Select the signature entry and click <strong style="color:var(--text);">Details</strong>.</li>
+                <li>Confirm the signer name matches the ChatIncluded project and the certificate is valid.</li>
+            </ol>
+
+            <p style="margin-top:1rem;color:var(--text);font-size:0.88rem;font-weight:600;">Option B — PowerShell</p>
+            <ol style="margin-top:0.4rem;">
+                <li>Open PowerShell and run:</li>
+            </ol>
+            <pre style="background:#0a0a0f;border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:0.5rem;overflow-x:auto;"><code style="background:none;border:none;padding:0;font-size:0.85rem;color:#f0f0f0;">Get-AuthenticodeSignature "ChatIncluded-Setup.exe" | Format-List</code></pre>
+            <p style="margin-top:0.5rem;">
+                A valid signature returns <code style="color:#4ade80;">Valid</code> for <code>Status</code>.
+                An unsigned or tampered file returns <code style="color:#f87171;">NotSigned</code> or <code style="color:#f87171;">HashMismatch</code> — do not run it.
+            </p>
+        </div>
+
+        <!-- 6. Certificate -->
+        <div class="policy-section">
+            <p class="section-label">6 — Certificate Authority</p>
+            <h2>Certificate source</h2>
+            <p>
+                Signing certificates are provided by <a href="https://signpath.io/terms/open-source" target="_blank">SignPath Foundation</a>,
+                a nonprofit organization that sponsors code signing for open-source projects.
+                ChatIncluded qualifies under SignPath's Open Source Software program because it is:
+            </p>
+            <ul style="margin-top:0.5rem;">
+                <li>Licensed under the <a href="https://github.com/KiraLovey/chatincluded/blob/main/LICENSE" target="_blank">MIT License</a></li>
+                <li>Publicly hosted on GitHub with full source code</li>
+                <li>Free to use, with no commercial distribution</li>
+                <li>Actively maintained with documented releases</li>
+            </ul>
+        </div>
+
+        <!-- 7. Policy changes -->
+        <div class="policy-section">
+            <p class="section-label">7 — Policy Changes</p>
+            <h2>Updates to this policy</h2>
+            <p>
+                This policy may be updated as the project evolves — for example if CI/CD signing is introduced
+                or team membership changes. All changes are reflected in the
+                <a href="https://github.com/KiraLovey/chatincluded/commits/main/policy.html" target="_blank">Git history</a>
+                for this file. The date below reflects the last revision.
+            </p>
+            <p style="margin-top:0.75rem;font-size:0.82rem;color:#555;">Last updated: March 2026</p>
+        </div>
+
+    </div>
+
+    <hr class="divider">
+
+    <!-- Footer -->
+    <footer>
+        <span class="footer-logo">🌐 ChatIncluded</span>
+        <p style="margin-bottom: 0.75rem;">Break the language barrier, live.</p>
+        <p>
+            <a href="https://github.com/KiraLovey/chatincluded">GitHub</a>
+            <a href="https://github.com/KiraLovey/chatincluded/issues">Report a Bug</a>
+            <a href="https://twitter.com/chatincluded">Twitter / X</a>
+            <a href="https://discord.gg/TkeDcaZQt6">Casterlabs Discord</a>
+            <a href="https://casterlabs.co">Get Casterlabs</a>
+            <a href="/policy.html">Code Signing Policy</a>
+        </p>
+        <p style="margin-top: 1rem;">Made with ❤️ for multilingual streaming communities.</p>
+    </footer>
+
+</body>
+</html>
