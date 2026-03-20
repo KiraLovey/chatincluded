@@ -22,6 +22,7 @@ public class ChatListener implements KoiLifeCycleHandler, KoiEventListener {
     private static final String PLATFORM_TWITCH  = "TWITCH";
     private static final String PLATFORM_KICK    = "KICK";
     private static final String PLATFORM_YOUTUBE = "YOUTUBE";
+    private static final String PLATFORM_TROVO   = "TROVO";
 
     private static final Pattern MENTION_PATTERN = Pattern.compile("@([\\w]+)");
 
@@ -296,6 +297,7 @@ public class ChatListener implements KoiLifeCycleHandler, KoiEventListener {
         if (PLATFORM_TWITCH.equals(platform))  return s.twitchEnabled;
         if (PLATFORM_KICK.equals(platform))    return s.kickEnabled;
         if (PLATFORM_YOUTUBE.equals(platform)) return s.youtubeEnabled;
+        if (PLATFORM_TROVO.equals(platform))   return s.trovoEnabled;
         return false;
     }
 
