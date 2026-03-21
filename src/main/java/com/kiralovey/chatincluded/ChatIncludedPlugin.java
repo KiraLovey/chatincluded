@@ -39,6 +39,9 @@ public class ChatIncludedPlugin extends CaffeinatedPlugin {
         chatListener = new ChatListener(this, koi);
         this.addKoiListener(chatListener);
 
+        // Wire the UsageTracker reference into any already-registered widget
+        wireTrackerToWidgets();
+
         getLogger().info("Ready. Waiting for chat events.");
 
         // Check for updates asynchronously
@@ -63,6 +66,37 @@ public class ChatIncludedPlugin extends CaffeinatedPlugin {
             }
         } catch (Exception ignored) {}
         return new PluginSettings();
+    }
+
+    /**
+     * Calls refreshStats() on the settings widget so the Stats section
+     * displays current tracker values.
+     */
+    public void refreshWidgetStats() {
+        try {
+            for (Widget w : this.getWidgets()) {
+                if ("com.kiralovey.chatincluded.settings".equals(w.getNamespace())) {
+                    ((ChatIncludedWidget) w).refreshStats();
+                    return;
+                }
+            }
+        } catch (Exception ignored) {}
+    }
+
+    /**
+     * Injects the UsageTracker reference into all registered settings widgets.
+     * Called after the chatListener is constructed so the tracker is available.
+     */
+    private void wireTrackerToWidgets() {
+        try {
+            if (chatListener == null) return;
+            UsageTracker tracker = chatListener.getTracker();
+            for (Widget w : this.getWidgets()) {
+                if ("com.kiralovey.chatincluded.settings".equals(w.getNamespace())) {
+                    ((ChatIncludedWidget) w).setTrackerRef(tracker);
+                }
+            }
+        } catch (Exception ignored) {}
     }
 
     @Override

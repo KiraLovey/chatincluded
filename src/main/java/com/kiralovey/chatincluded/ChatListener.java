@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,6 +56,8 @@ public class ChatListener implements KoiLifeCycleHandler, KoiEventListener {
     private final RecentMessageCache        messageCache = new RecentMessageCache(10);
     private final ExecutorService           executor     = Executors.newCachedThreadPool();
     private final CommandHandler            commands;
+    private final UsageTracker              usageTracker = new UsageTracker();
+    private final AtomicBoolean             pollingStartedOnce = new AtomicBoolean(false);
 
     public ChatListener(ChatIncludedPlugin plugin, Koi koi) {
         this.plugin   = plugin;
@@ -66,6 +69,11 @@ public class ChatListener implements KoiLifeCycleHandler, KoiEventListener {
     public void onRichMessage(RichMessageEvent event) {
         PluginSettings settings = plugin.readSettings();
         if (!settings.enabled) return;
+
+        // Start usage polling the first time we have a valid settings object
+        if (pollingStartedOnce.compareAndSet(false, true)) {
+            usageTracker.startPolling(settings);
+        }
 
         String platform   = resolvePlatform(event);
         if (!isPlatformEnabled(platform, settings)) return;
@@ -91,6 +99,7 @@ public class ChatListener implements KoiLifeCycleHandler, KoiEventListener {
         // ── 3. Bot exclusion list ─────────────────────────────────────────────
         if (isExcluded(senderName, settings)) {
             plugin.getLogger().debug("Ignoring excluded user: " + senderName);
+            usageTracker.recordFiltered(UsageTracker.FilterReason.BOT_EXCLUDED);
             return;
         }
 
@@ -129,6 +138,7 @@ public class ChatListener implements KoiLifeCycleHandler, KoiEventListener {
         // ── 8. Skip if message is empty or too short after emote removal ──────
         if (text.isBlank() || text.length() < settings.minimumMessageLength) {
             plugin.getLogger().debug("Skipping message (empty/too short after emote strip): " + rawText);
+            usageTracker.recordFiltered(UsageTracker.FilterReason.TOO_SHORT);
             return;
         }
 
@@ -136,12 +146,16 @@ public class ChatListener implements KoiLifeCycleHandler, KoiEventListener {
         String pinnedLang = prefs.get(senderName);
         if (pinnedLang != null && pinnedLang.equalsIgnoreCase(settings.targetLanguage)) {
             plugin.getLogger().debug("Skipping — " + senderName + " pinned to target language");
+            usageTracker.recordFiltered(UsageTracker.FilterReason.SAME_LANGUAGE);
             return;
         }
 
         // ── 10. Deduplication and rate limiting ───────────────────────────────
         int hash = text.strip().hashCode();
-        if (tracker.isDuplicate(hash, settings.deduplicationWindowSeconds)) return;
+        if (tracker.isDuplicate(hash, settings.deduplicationWindowSeconds)) {
+            usageTracker.recordFiltered(UsageTracker.FilterReason.DEDUPLICATED);
+            return;
+        }
         if (!tracker.isAllowed(settings.cooldownMs, settings.burstLimit)) return;
         tracker.markSeen(hash);
 
@@ -154,7 +168,13 @@ public class ChatListener implements KoiLifeCycleHandler, KoiEventListener {
         executor.submit(() ->
             deepL.translate(cleanText, targetLang)
                 .thenAccept(result -> {
-                    if (result.detectedSourceLanguage.startsWith(targetLang)) return;
+                    if (result.detectedSourceLanguage.startsWith(targetLang)) {
+                        usageTracker.recordFiltered(UsageTracker.FilterReason.SAME_LANGUAGE);
+                        return;
+                    }
+
+                    // Record the translation against the tracker
+                    usageTracker.recordTranslation(result.billedCharacters, cleanText.length());
 
                     String effectiveLang = (pinnedLang != null)
                             ? pinnedLang
@@ -179,6 +199,11 @@ public class ChatListener implements KoiLifeCycleHandler, KoiEventListener {
                     } catch (Exception e) {
                         plugin.getLogger().severe("Failed to send translation: " + e.getMessage());
                     }
+
+                    // Refresh the stats UI in the widget
+                    try {
+                        plugin.refreshWidgetStats();
+                    } catch (Exception ignored) {}
                 })
                 .exceptionally(ex -> {
                     plugin.getLogger().severe("DeepL API error: " + ex.getMessage());
@@ -321,7 +346,12 @@ public class ChatListener implements KoiLifeCycleHandler, KoiEventListener {
         catch (Exception e) { return "viewer"; }
     }
 
+    public UsageTracker getTracker() {
+        return usageTracker;
+    }
+
     public void shutdown() {
         executor.shutdownNow();
+        usageTracker.shutdown();
     }
 }

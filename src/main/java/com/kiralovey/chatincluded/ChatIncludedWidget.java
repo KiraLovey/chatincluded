@@ -7,10 +7,27 @@ import co.casterlabs.caffeinated.pluginsdk.widgets.settings.WidgetSettingsItem;
 import co.casterlabs.caffeinated.pluginsdk.widgets.settings.WidgetSettingsLayout;
 import co.casterlabs.caffeinated.pluginsdk.widgets.settings.WidgetSettingsSection;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 public class ChatIncludedWidget extends Widget {
 
     @Override
     public void onInit() {
+        this.setSettingsLayout(buildFullLayout(null, null));
+    }
+
+    @Override
+    public void onNameUpdate() {}
+
+    @Override
+    public String getWidgetBasePath(WidgetInstanceMode mode) {
+        return null;
+    }
+
+    // ── Settings layout construction ──────────────────────────────────────────
+
+    private WidgetSettingsLayout buildFullLayout(UsageTracker tracker, PluginSettings settings) {
         // General
         WidgetSettingsSection general = new WidgetSettingsSection("general", "General")
                 .addItem(WidgetSettingsItem.asCheckbox("enabled",
@@ -71,7 +88,10 @@ public class ChatIncludedWidget extends Widget {
                 .addItem(WidgetSettingsItem.asCheckbox("youtubeEnabled", "Enable on YouTube", true))
                 .addItem(WidgetSettingsItem.asCheckbox("trovoEnabled",   "Enable on Trovo",   true));
 
-        this.setSettingsLayout(new WidgetSettingsLayout()
+        // Stats
+        WidgetSettingsSection stats = buildStatsSection(tracker, settings);
+
+        return new WidgetSettingsLayout()
                 .addSection(general)
                 .addSection(api)
                 .addSection(lang)
@@ -79,16 +99,186 @@ public class ChatIncludedWidget extends Widget {
                 .addSection(twoWay)
                 .addSection(commands)
                 .addSection(exclusions)
-                .addSection(platforms));
+                .addSection(platforms)
+                .addSection(stats);
     }
 
-    @Override
-    public void onNameUpdate() {}
+    private WidgetSettingsSection buildStatsSection(UsageTracker tracker, PluginSettings settings) {
+        WidgetSettingsSection stats = new WidgetSettingsSection("stats", "Stats");
 
-    @Override
-    public String getWidgetBasePath(WidgetInstanceMode mode) {
-        return null;
+        if (tracker == null || settings == null) {
+            // No data yet — show placeholder values
+            stats.addItem(WidgetSettingsItem.asText("statsTxSent",
+                    "Translations sent (session)", "0", "0"));
+            stats.addItem(WidgetSettingsItem.asText("statsCharsBilled",
+                    "Characters billed (session)", "0", "0"));
+            stats.addItem(WidgetSettingsItem.asText("statsMsgFiltered",
+                    "Messages filtered (session)", "0", "0"));
+            stats.addItem(WidgetSettingsItem.asText("statsCharsSaved",
+                    "Characters saved (session)", "0", "0"));
+            stats.addItem(WidgetSettingsItem.asText("statsFilterShort",
+                    "\u21b3 Too short", "0", "0"));
+            stats.addItem(WidgetSettingsItem.asText("statsFilterEmote",
+                    "\u21b3 Emote only", "0", "0"));
+            stats.addItem(WidgetSettingsItem.asText("statsFilterSameLang",
+                    "\u21b3 Same language", "0", "0"));
+            stats.addItem(WidgetSettingsItem.asText("statsFilterDedup",
+                    "\u21b3 Deduplicated", "0", "0"));
+            return stats;
+        }
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+
+        boolean isPro = "pro".equalsIgnoreCase(settings.deeplPlan);
+        long charCount  = tracker.getDeeplCharacterCount();
+        long charLimit  = tracker.getDeeplCharacterLimit();
+        long billed     = tracker.getCharactersBilled();
+        long saved      = tracker.getCharactersSaved();
+        int  txSent     = tracker.getTranslationsSent();
+        int  filtered   = tracker.getMessagesFiltered();
+        int  fShort     = tracker.getFilteredTooShort();
+        int  fEmote     = tracker.getFilteredEmoteOnly();
+        int  fSameLang  = tracker.getFilteredSameLanguage();
+        int  fDedup     = tracker.getFilteredDeduplicated();
+
+        if (isPro) {
+            // Pro plan — show cost estimates
+            String charsUsedVal = charCount >= 0 ? nf.format(charCount) : "—";
+            stats.addItem(WidgetSettingsItem.asText("statsCharsUsed",
+                    "Characters translated (this period)", charsUsedVal, charsUsedVal));
+
+            double periodCost = charCount >= 0 ? charCount * 0.000025 : 0.0;
+            String estCostVal = charCount >= 0
+                    ? String.format("$%.4f", periodCost)
+                    : "—";
+            stats.addItem(WidgetSettingsItem.asText("statsEstCost",
+                    "Estimated cost (this period)", estCostVal, estCostVal));
+
+            String txSentVal = nf.format(txSent);
+            stats.addItem(WidgetSettingsItem.asText("statsTxSent",
+                    "Translations sent (session)", txSentVal, txSentVal));
+
+            String billedVal = nf.format(billed);
+            stats.addItem(WidgetSettingsItem.asText("statsCharsBilled",
+                    "Characters billed (session)", billedVal, billedVal));
+
+            double sessionCost = billed * 0.000025;
+            String sessionCostVal = String.format("$%.4f", sessionCost);
+            stats.addItem(WidgetSettingsItem.asText("statsEstSessionCost",
+                    "Estimated session cost", sessionCostVal, sessionCostVal));
+
+            String savedVal = nf.format(saved);
+            stats.addItem(WidgetSettingsItem.asText("statsCharsSaved",
+                    "Characters saved (session)", savedVal, savedVal));
+
+            double savingsCost = saved * 0.000025;
+            String savingsVal = String.format("$%.4f", savingsCost);
+            stats.addItem(WidgetSettingsItem.asText("statsEstSavings",
+                    "Estimated savings (session)", savingsVal, savingsVal));
+
+        } else {
+            // Free plan — show quota display
+            String charsUsedVal;
+            if (charCount >= 0 && charLimit > 0) {
+                charsUsedVal = nf.format(charCount) + " / " + nf.format(charLimit);
+            } else if (charCount >= 0) {
+                charsUsedVal = nf.format(charCount);
+            } else {
+                charsUsedVal = "—";
+            }
+            stats.addItem(WidgetSettingsItem.asText("statsCharsUsed",
+                    "Characters used (this period)", charsUsedVal, charsUsedVal));
+
+            String remainingVal;
+            String quotaPctVal;
+            if (charCount >= 0 && charLimit > 0) {
+                long remaining = charLimit - charCount;
+                double pct = (double) charCount / charLimit * 100.0;
+                double remainPct = 100.0 - pct;
+                remainingVal = nf.format(remaining) + String.format(" (%.1f%%)", remainPct);
+                quotaPctVal  = String.format("%.1f%%", pct);
+            } else {
+                remainingVal = "—";
+                quotaPctVal  = "—";
+            }
+            stats.addItem(WidgetSettingsItem.asText("statsCharsRemaining",
+                    "Remaining", remainingVal, remainingVal));
+            stats.addItem(WidgetSettingsItem.asText("statsQuotaPct",
+                    "Quota used", quotaPctVal, quotaPctVal));
+
+            String txSentVal = nf.format(txSent);
+            stats.addItem(WidgetSettingsItem.asText("statsTxSent",
+                    "Translations sent (session)", txSentVal, txSentVal));
+
+            String billedVal = nf.format(billed);
+            stats.addItem(WidgetSettingsItem.asText("statsCharsBilled",
+                    "Characters billed (session)", billedVal, billedVal));
+
+            String filteredVal = nf.format(filtered);
+            stats.addItem(WidgetSettingsItem.asText("statsMsgFiltered",
+                    "Messages filtered (session)", filteredVal, filteredVal));
+
+            String savedVal = nf.format(saved);
+            stats.addItem(WidgetSettingsItem.asText("statsCharsSaved",
+                    "Characters saved (session)", savedVal, savedVal));
+
+            // Quota saved percentage (session)
+            String quotaSavedVal;
+            if (charLimit > 0 && saved > 0) {
+                double pctSaved = (double) saved / charLimit * 100.0;
+                quotaSavedVal = String.format("%.0f%%", pctSaved);
+            } else {
+                quotaSavedVal = "0%";
+            }
+            stats.addItem(WidgetSettingsItem.asText("statsQuotaSaved",
+                    "Quota saved (session)", quotaSavedVal, quotaSavedVal));
+        }
+
+        // Filter breakdown — same for both plans
+        String fShortVal   = nf.format(fShort);
+        String fEmoteVal   = nf.format(fEmote);
+        String fSameLangVal = nf.format(fSameLang);
+        String fDedupVal   = nf.format(fDedup);
+
+        stats.addItem(WidgetSettingsItem.asText("statsFilterShort",
+                "\u21b3 Too short", fShortVal, fShortVal));
+        stats.addItem(WidgetSettingsItem.asText("statsFilterEmote",
+                "\u21b3 Emote only", fEmoteVal, fEmoteVal));
+        stats.addItem(WidgetSettingsItem.asText("statsFilterSameLang",
+                "\u21b3 Same language", fSameLangVal, fSameLangVal));
+        stats.addItem(WidgetSettingsItem.asText("statsFilterDedup",
+                "\u21b3 Deduplicated", fDedupVal, fDedupVal));
+
+        return stats;
     }
+
+    /**
+     * Rebuilds the full settings layout with current tracker data baked in and
+     * re-sets it so Caffeinated displays fresh values.
+     */
+    public void refreshStats() {
+        try {
+            PluginSettings settings = this.readSettings();
+            // Retrieve the tracker from the plugin's chat listener
+            ChatIncludedPlugin pluginInstance = null;
+            // Walk up via the registered widget namespace to find the plugin
+            // The tracker is accessed via plugin.getChatListener().getTracker()
+            // We call this from ChatIncludedPlugin so it injects itself.
+            // If trackerRef is available, use it; otherwise fall back gracefully.
+            if (trackerRef != null && settings != null) {
+                this.setSettingsLayout(buildFullLayout(trackerRef, settings));
+            }
+        } catch (Exception ignored) {}
+    }
+
+    /** Reference to the UsageTracker, set by ChatIncludedPlugin after wiring. */
+    private UsageTracker trackerRef;
+
+    public void setTrackerRef(UsageTracker tracker) {
+        this.trackerRef = tracker;
+    }
+
+    // ── Settings reading ──────────────────────────────────────────────────────
 
     public PluginSettings readSettings() {
         WidgetSettings s = this.settings();

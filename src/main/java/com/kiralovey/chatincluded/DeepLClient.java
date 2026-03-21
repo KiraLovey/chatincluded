@@ -40,6 +40,7 @@ public class DeepLClient {
         texts.add(text);
         body.add("text", texts);
         body.addProperty("target_lang", targetLang);
+        body.addProperty("show_billed_characters", "1");
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(settings.getDeeplEndpoint()))
@@ -73,8 +74,11 @@ public class DeepLClient {
         String detectedSourceLang = first.has("detected_source_language")
                 ? first.get("detected_source_language").getAsString()
                 : "UNKNOWN";
+        int billedCharacters = first.has("billed_characters")
+                ? first.get("billed_characters").getAsInt()
+                : translatedText.length();
 
-        return new TranslationResult(translatedText, detectedSourceLang);
+        return new TranslationResult(translatedText, detectedSourceLang, billedCharacters);
     }
 
     // Result record
@@ -82,10 +86,13 @@ public class DeepLClient {
     public static final class TranslationResult {
         public final String translatedText;
         public final String detectedSourceLanguage;
+        public final int    billedCharacters;
 
-        public TranslationResult(String translatedText, String detectedSourceLanguage) {
+        public TranslationResult(String translatedText, String detectedSourceLanguage,
+                                 int billedCharacters) {
             this.translatedText = translatedText;
             this.detectedSourceLanguage = detectedSourceLanguage.toUpperCase();
+            this.billedCharacters = billedCharacters;
         }
     }
 }
