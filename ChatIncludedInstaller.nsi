@@ -42,6 +42,7 @@ VIAddVersionKey "LegalCopyright"  "KiraLovey"
 
 Page custom WelcomePage
 Page custom CheckCasterlabsPage
+Page custom PluginsFolderPage PluginsFolderPageLeave
 Page instfiles "" "" InstFilesLeave
 Page custom SuccessPage
 
@@ -53,6 +54,11 @@ UninstPage instfiles
 
 Var CasterlabsFound
 Var CasterlabsExe
+Var InstallSucceeded
+Var PluginsPath
+Var PluginsDialog
+Var PluginsPathField
+Var AbortCalled
 
 ;--------------------------------
 ; GUI init — hide branding strip and colour outer window on startup
@@ -69,6 +75,10 @@ FunctionEnd
 ; infinite-looping as long as install is already complete (post-instfiles).
 
 Function .onUserAbort
+    ${If} $AbortCalled == "1"
+        Return
+    ${EndIf}
+    StrCpy $AbortCalled "1"
     Quit
 FunctionEnd
 
@@ -220,12 +230,111 @@ Function CheckCasterlabsPage
 FunctionEnd
 
 ;--------------------------------
+; Plugins folder picker page
+; Pre-fills with the default path. User can browse or paste the correct folder.
+; The leave function validates the path exists before proceeding.
+
+Function PluginsFolderPage
+    nsDialogs::Create 1018
+    Pop $PluginsDialog
+    ${If} $PluginsDialog == error
+        Abort
+    ${EndIf}
+
+    SetCtlColors $HWNDPARENT "F0F0F0" "0A0A0F"
+    SetCtlColors $PluginsDialog "F0F0F0" "0A0A0F"
+
+    ; Hide Back
+    GetDlgItem $0 $HWNDPARENT 3
+    ShowWindow $0 ${SW_HIDE}
+
+    ; Title
+    ${NSD_CreateLabel} 0 4u 100% 12u "Select Plugins Folder"
+    Pop $0
+    SetCtlColors $0 "FFFFFF" "0A0A0F"
+    CreateFont $0 "Segoe UI" 15 700
+    SendMessage $0 ${WM_SETFONT} $0 0
+
+    ; Instructions
+    ${NSD_CreateLabel} 10u 19u 280u 36u "Open Casterlabs, go to Settings > Plugins, and click 'Open Plugins Folder'. Copy that path and paste it below, or use Browse."
+    Pop $0
+    SetCtlColors $0 "CCCCCC" "0A0A0F"
+    CreateFont $1 "Segoe UI" 9 400
+    SendMessage $0 ${WM_SETFONT} $1 0
+
+    ; Path label
+    ${NSD_CreateLabel} 10u 59u 280u 10u "Plugins folder path:"
+    Pop $0
+    SetCtlColors $0 "AAAAAA" "0A0A0F"
+    CreateFont $1 "Segoe UI" 9 400
+    SendMessage $0 ${WM_SETFONT} $1 0
+
+    ; Path text field — pre-filled with default
+    ${If} $PluginsPath == ""
+        StrCpy $PluginsPath "$APPDATA\casterlabs-caffeinated\plugins"
+    ${EndIf}
+    ${NSD_CreateText} 10u 70u 215u 12u "$PluginsPath"
+    Pop $PluginsPathField
+    SetCtlColors $PluginsPathField "F0F0F0" "1A1A2E"
+
+    ; Browse button
+    ${NSD_CreateButton} 230u 69u 60u 14u "Browse..."
+    Pop $0
+    GetFunctionAddress $1 OnBrowsePluginsFolder
+    nsDialogs::OnClick $0 $1
+
+    nsDialogs::Show
+FunctionEnd
+
+Function OnBrowsePluginsFolder
+    ${NSD_GetText} $PluginsPathField $PluginsPath
+    nsDialogs::SelectFolderDialog "Select the Casterlabs plugins folder" "$PluginsPath"
+    Pop $0
+    ${If} $0 != error
+        StrCpy $PluginsPath $0
+        ${NSD_SetText} $PluginsPathField $0
+    ${EndIf}
+FunctionEnd
+
+Function PluginsFolderPageLeave
+    ${NSD_GetText} $PluginsPathField $PluginsPath
+
+    ; Reject empty path
+    ${If} $PluginsPath == ""
+        MessageBox MB_OK|MB_ICONEXCLAMATION \
+            "Please enter the path to your Casterlabs plugins folder.$\r$\n$\r$\nIn Casterlabs: Settings > Plugins > Open Plugins Folder."
+        Abort
+    ${EndIf}
+
+    ; Reject path that doesn't exist
+    ${IfNot} ${FileExists} "$PluginsPath\*.*"
+        MessageBox MB_OK|MB_ICONEXCLAMATION \
+            "The folder '$PluginsPath' was not found.$\r$\n$\r$\nOpen Casterlabs, go to Settings > Plugins, and click 'Open Plugins Folder'. Copy that path and try again."
+        Abort
+    ${EndIf}
+FunctionEnd
+
+;--------------------------------
 ; Install section
 
 Section "Install"
-    ; Install the plugin JAR
-    SetOutPath "$APPDATA\casterlabs-caffeinated\plugins"
+    StrCpy $InstallSucceeded "0"
+
+    ; Install the plugin JAR into the user-confirmed folder
+    SetOutPath "$PluginsPath"
+    ClearErrors
     File "chatincluded-1.0.0.jar"
+    IfErrors install_file_failed
+
+    StrCpy $InstallSucceeded "1"
+    Goto install_files_done
+
+    install_file_failed:
+        MessageBox MB_OK|MB_ICONEXCLAMATION \
+            "ChatIncluded could not be copied to:$\r$\n$\r$\n  $PluginsPath$\r$\n$\r$\nIf Casterlabs is open, close it and run the installer again.$\r$\nIf the problem persists, check that you have write access to that folder."
+        Abort
+
+    install_files_done:
 
     ; Write uninstaller to its own directory
     CreateDirectory "$LOCALAPPDATA\ChatIncluded"
@@ -248,6 +357,10 @@ Section "Install"
         "NoModify" 1
     WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\ChatIncluded" \
         "NoRepair" 1
+
+    ; Save the plugins path so the uninstaller can find the JAR later
+    WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\ChatIncluded" \
+        "PluginsPath" "$PluginsPath"
 SectionEnd
 
 ;--------------------------------
@@ -258,8 +371,14 @@ Section "Uninstall"
     Abort
     uninstall_proceed:
 
+    ; Read the plugins path saved at install time
+    ReadRegStr $0 HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\ChatIncluded" "PluginsPath"
+    ${If} $0 == ""
+        StrCpy $0 "$APPDATA\casterlabs-caffeinated\plugins"
+    ${EndIf}
+
     ; Remove the plugin JAR
-    Delete "$APPDATA\casterlabs-caffeinated\plugins\chatincluded-1.0.0.jar"
+    Delete "$0\chatincluded-1.0.0.jar"
 
     ; Remove the uninstaller and its directory
     Delete "$LOCALAPPDATA\ChatIncluded\Uninstall.exe"
@@ -303,32 +422,48 @@ Function SuccessPage
     GetDlgItem $0 $HWNDPARENT 2
     ShowWindow $0 ${SW_HIDE}
 
-    ; Title
-    ${NSD_CreateLabel} 0 4u 100% 12u "ChatIncluded Installed!"
-    Pop $SuccessTitle
-    SetCtlColors $SuccessTitle "FFFFFF" "0A0A0F"
-    CreateFont $0 "Segoe UI" 15 700
-    SendMessage $SuccessTitle ${WM_SETFONT} $0 0
+    ${If} $InstallSucceeded == "1"
+        ; Title
+        ${NSD_CreateLabel} 0 4u 100% 12u "ChatIncluded Installed!"
+        Pop $SuccessTitle
+        SetCtlColors $SuccessTitle "FFFFFF" "0A0A0F"
+        CreateFont $0 "Segoe UI" 15 700
+        SendMessage $SuccessTitle ${WM_SETFONT} $0 0
 
-    ; Instructions
-    ${NSD_CreateLabel} 10u 19u 280u 46u "ChatIncluded is now in your Casterlabs plugins.$\r$\n$\r$\nIn Casterlabs: Widgets & Alerts > + > Other >$\r$\nChatIncluded Settings, then enter your DeepL key."
-    Pop $SuccessText
-    SetCtlColors $SuccessText "CCCCCC" "0A0A0F"
-    CreateFont $1 "Segoe UI" 9 400
-    SendMessage $SuccessText ${WM_SETFONT} $1 0
+        ; Instructions
+        ${NSD_CreateLabel} 10u 19u 280u 46u "ChatIncluded is now in your Casterlabs plugins.$\r$\n$\r$\nIn Casterlabs: Widgets & Alerts > + > Other >$\r$\nChatIncluded Settings, then enter your DeepL key."
+        Pop $SuccessText
+        SetCtlColors $SuccessText "CCCCCC" "0A0A0F"
+        CreateFont $1 "Segoe UI" 9 400
+        SendMessage $SuccessText ${WM_SETFONT} $1 0
 
-    ; Prompt
-    ${NSD_CreateLabel} 10u 68u 280u 10u "Open Casterlabs now?"
-    Pop $0
-    SetCtlColors $0 "F0F0F0" "0A0A0F"
-    CreateFont $2 "Segoe UI" 10 600
-    SendMessage $0 ${WM_SETFONT} $2 0
+        ; Prompt
+        ${NSD_CreateLabel} 10u 68u 280u 10u "Open Casterlabs now?"
+        Pop $0
+        SetCtlColors $0 "F0F0F0" "0A0A0F"
+        CreateFont $2 "Segoe UI" 10 600
+        SendMessage $0 ${WM_SETFONT} $2 0
 
-    ; "Open Casterlabs" — launches and then clicks the native Close button
-    ${NSD_CreateButton} 10u 81u 100u 12u "Open Casterlabs"
-    Pop $OpenButton
-    GetFunctionAddress $0 OpenCasterlabs
-    nsDialogs::OnClick $OpenButton $0
+        ; "Open Casterlabs" — launches and then clicks the native Close button
+        ${NSD_CreateButton} 10u 81u 100u 12u "Open Casterlabs"
+        Pop $OpenButton
+        GetFunctionAddress $0 OpenCasterlabs
+        nsDialogs::OnClick $OpenButton $0
+    ${Else}
+        ; Title
+        ${NSD_CreateLabel} 0 4u 100% 12u "Installation Failed"
+        Pop $SuccessTitle
+        SetCtlColors $SuccessTitle "FF4444" "0A0A0F"
+        CreateFont $0 "Segoe UI" 15 700
+        SendMessage $SuccessTitle ${WM_SETFONT} $0 0
+
+        ; Error detail
+        ${NSD_CreateLabel} 10u 19u 280u 56u "ChatIncluded could not be installed.$\r$\n$\r$\nClose Casterlabs if it is running, then run this installer again. If the problem continues, check that you have write access to the plugins folder."
+        Pop $SuccessText
+        SetCtlColors $SuccessText "FF8888" "0A0A0F"
+        CreateFont $1 "Segoe UI" 9 400
+        SendMessage $SuccessText ${WM_SETFONT} $1 0
+    ${EndIf}
 
     nsDialogs::Show
 FunctionEnd
