@@ -78,6 +78,17 @@ public class ViewerLanguagePreferences {
         return manuallySet.contains(username.toLowerCase());
     }
 
+    /**
+     * Removes a viewer's language preference entirely.
+     * Used to undo a !setlang if DeepL rejects the code.
+     */
+    public synchronized void clear(String username) {
+        if (username == null) return;
+        String key = username.toLowerCase();
+        preferences.remove(key);
+        manuallySet.remove(key);
+    }
+
     public synchronized int size() {
         return preferences.size();
     }

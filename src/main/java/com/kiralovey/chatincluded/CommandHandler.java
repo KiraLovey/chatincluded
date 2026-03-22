@@ -87,36 +87,46 @@ public class CommandHandler {
 
         String code = parts[1].trim().toUpperCase();
 
-        if (!SupportedLanguages.isSupported(code)) {
-            String suggestion = SupportedLanguages.getSuggestion(code);
-            String hint = (suggestion != null) ? " Did you mean " + suggestion + "?" : "";
-            sendChat(up, "@" + sender + " \"" + code + "\" is not a supported language code." + hint
-                    + " Type !languages for valid codes.");
+        // Reject obvious non-codes (must be letters only, with an optional
+        // hyphen for regional variants like EN-US or PT-BR)
+        if (!code.matches("[A-Z]{2,7}(-[A-Z]{2,4})?")) {
+            sendChat(up, "@" + sender + " \"" + code + "\" doesn't look like a valid language code."
+                    + " Use a DeepL code such as ES, HI, PT-BR — see: https://chatincluded.live/#commands");
             return;
+        }
+
+        // Hint at common substitution mistakes (e.g. JP → JA) without blocking
+        String suggestion = SupportedLanguages.getSuggestion(code);
+        if (suggestion != null) {
+            sendChat(up, "@" + sender + " Heads up: did you mean " + suggestion + " instead of " + code + "?");
         }
 
         prefs.setManual(sender, code);
         plugin.getLogger().info("Viewer " + sender + " set language preference to " + code);
 
-        sendChat(up, "@" + sender + " Your language has been set to " + code
-                + ". The streamer's replies will be translated for you!");
-
         if (!code.startsWith("EN")) {
             DeepLClient deepL = new DeepLClient(settings);
-            String messageToTranslate = "Your language has been set to " + code
+            String confirmMessage = "Your language has been set to " + code
                     + ". The streamer's replies will be translated for you!";
 
             executor.submit(() ->
-                deepL.translate(messageToTranslate, code)
+                deepL.translate(confirmMessage, code)
                     .thenAccept(result -> {
                         sendChat(up, "@" + sender + " " + result.translatedText);
                     })
                     .exceptionally(ex -> {
-                        plugin.getLogger().debug("Could not translate !setlang confirmation: "
-                                + ex.getMessage());
+                        // DeepL rejected the code — clear the preference and tell the user
+                        prefs.clear(sender);
+                        sendChat(up, "@" + sender + " \"" + code + "\" is not supported by DeepL."
+                                + " Check https://chatincluded.live/#commands for valid codes.");
+                        plugin.getLogger().debug("!setlang rejected by DeepL for code " + code
+                                + ": " + ex.getMessage());
                         return null;
                     })
             );
+        } else {
+            sendChat(up, "@" + sender + " Your language has been set to " + code
+                    + ". The streamer's replies will be translated for you!");
         }
     }
 
@@ -131,13 +141,17 @@ public class CommandHandler {
 
         String targetCode = parts[1].trim().toUpperCase();
 
-        if (!SupportedLanguages.isSupported(targetCode)) {
-            String suggestion = SupportedLanguages.getSuggestion(targetCode);
-            String hint = (suggestion != null) ? " Did you mean " + suggestion + "?" : "";
+        if (!targetCode.matches("[A-Z]{2,7}(-[A-Z]{2,4})?")) {
             sendChat(event.getStreamer().getPlatform(),
-                    "@" + sender + " \"" + targetCode + "\" is not a supported language code." + hint
-                    + " Type !languages for valid codes.");
+                    "@" + sender + " \"" + targetCode + "\" doesn't look like a valid language code."
+                    + " Use a DeepL code such as ES, HI, PT-BR — see: https://chatincluded.live/#commands");
             return;
+        }
+
+        String suggestion = SupportedLanguages.getSuggestion(targetCode);
+        if (suggestion != null) {
+            sendChat(event.getStreamer().getPlatform(),
+                    "@" + sender + " Heads up: did you mean " + suggestion + " instead of " + targetCode + "?");
         }
 
         String messageToTranslate = null;
