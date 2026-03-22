@@ -73,6 +73,7 @@ public class ChatListener implements KoiLifeCycleHandler, KoiEventListener {
         // Start usage polling the first time we have a valid settings object
         if (pollingStartedOnce.compareAndSet(false, true)) {
             usageTracker.startPolling(settings);
+            SupportedLanguages.initAsync(settings);
         }
 
         String platform   = resolvePlatform(event);

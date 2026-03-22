@@ -53,6 +53,13 @@ public class PluginSettings {
         return "https://api-free.deepl.com/v2/translate";
     }
 
+    public String getDeeplLanguagesEndpoint() {
+        if ("pro".equalsIgnoreCase(deeplPlan)) {
+            return "https://api.deepl.com/v2/languages?type=target";
+        }
+        return "https://api-free.deepl.com/v2/languages?type=target";
+    }
+
     public Set<String> getExcludedUsernamesSet() {
         Set<String> set = new HashSet<>();
         if (excludedUsernames == null || excludedUsernames.isBlank()) return set;

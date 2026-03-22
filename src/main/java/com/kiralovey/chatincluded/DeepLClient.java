@@ -40,7 +40,7 @@ public class DeepLClient {
         texts.add(text);
         body.add("text", texts);
         body.addProperty("target_lang", targetLang);
-        body.addProperty("show_billed_characters", "1");
+        body.addProperty("show_billed_characters", true);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(settings.getDeeplEndpoint()))
