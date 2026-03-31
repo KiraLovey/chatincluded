@@ -134,9 +134,11 @@ PixieEngine.prototype._tick = function(ts) {
 
 PixieEngine.prototype._resize = function() {
     var c = this.canvas;
-    if (c.width !== c.clientWidth || c.height !== c.clientHeight) {
-        c.width  = c.clientWidth  || window.innerWidth;
-        c.height = c.clientHeight || window.innerHeight;
+    var W = window.innerWidth  || document.documentElement.clientWidth  || c.clientWidth;
+    var H = window.innerHeight || document.documentElement.clientHeight || c.clientHeight;
+    if (W > 0 && H > 0 && (c.width !== W || c.height !== H)) {
+        c.width  = W;
+        c.height = H;
     }
 };
 
