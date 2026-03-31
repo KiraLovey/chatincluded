@@ -222,7 +222,7 @@ PixieEngine.prototype._render = function() {
         var p = this.pixies[ids[i]];
 
         var bob   = Math.abs(Math.sin(p.walkPhase)) * 4 * scale;
-        var drawY = floorY - spriteH + bob;   // sprite top-left Y
+        var drawY = floorY - spriteH - bob;   // sprite top-left Y (bob lifts up)
         var drawX = p.x;                      // sprite left X
 
         // ── draw sprite in scaled + mirrored space ───────────────────────
