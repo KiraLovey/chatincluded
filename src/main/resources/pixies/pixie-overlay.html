@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>ChatIncluded Pixies</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:100%; height:100%; overflow:hidden; background:transparent; }
+    canvas {
+      position:fixed; inset:0;
+      width:100%; height:100%;
+      display:block;
+    }
+    /* demo-mode checkerboard so it's visibly non-blank in the preview panel */
+    body.demo-mode {
+      background:
+        repeating-conic-gradient(#1a1a2e 0% 25%, #0e0e18 0% 50%)
+        0 0 / 32px 32px;
+    }
+    .demo-label {
+      position:fixed; top:10px; left:50%; transform:translateX(-50%);
+      background:rgba(0,0,0,0.55); border:1px solid rgba(167,139,250,0.35);
+      border-radius:20px; padding:4px 16px;
+      color:#a78bfa; font-size:13px; font-weight:800;
+      font-family:'Nunito',sans-serif; pointer-events:none; white-space:nowrap;
+    }
+  </style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<script src="pixie-shared.js"></script>
+<script>
+var engine = null;
+
+function readSettings() {
+    return {
+        hueShift:        Widget.getSetting('appearance.hueShift') !== false,
+        showPlatformIcon:!!Widget.getSetting('appearance.showPlatformIcon'),
+        spriteScale:     Number(Widget.getSetting('appearance.spriteScale'))  || 3,
+        walkSpeedMin:    Number(Widget.getSetting('movement.walkSpeedMin'))   || 0.03,
+        walkSpeedMax:    Number(Widget.getSetting('movement.walkSpeedMax'))   || 0.07,
+        maxPixies:       Number(Widget.getSetting('movement.maxPixies'))      || 40,
+        inactivityMs:    Number(Widget.getSetting('timing.inactivityMs'))     || 90000,
+    };
+}
+
+function initOverlay(settings) {
+    var canvas = document.getElementById('stage');
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    window.addEventListener('resize', function() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+    engine = new PixieEngine(canvas, settings);
+    engine.start();
+}
+
+// ── Caffeinated SDK path ──────────────────────────────────────────────────
+if (typeof Widget !== 'undefined') {
+    Widget.on('init', function() { initOverlay(readSettings()); });
+    Widget.on('update', function() { if (engine) engine.updateSettings(readSettings()); });
+    Koi.on('RICH_MESSAGE', function(event) { if (engine) engine.handleChatMessage(event); });
+} else {
+    // ── Demo / preview mode ───────────────────────────────────────────────
+    document.body.classList.add('demo-mode');
+    var lbl = document.createElement('div');
+    lbl.className = 'demo-label';
+    lbl.textContent = '✨ ChatIncluded Pixies — preview (not connected to Caffeinated)';
+    document.body.appendChild(lbl);
+
+    var DEMO_NAMES    = ['Kira_Lovey','StarDust99','NeonFoxxy','KickViewer','GhostChatter','RoboChan'];
+    var DEMO_MESSAGES = ['Hello chat!','PogChamp','Let\'s gooo!','gg wp','!sprite cat','Hype hype hype'];
+    var demoSettings  = { hueShift:true, showPlatformIcon:false, spriteScale:3,
+                          walkSpeedMin:0.03, walkSpeedMax:0.07, maxPixies:40,
+                          inactivityMs:900000 };
+
+    initOverlay(demoSettings);
+
+    // spawn one demo pixie per sprite type, staggered
+    SPRITE_NAMES.forEach(function(type, i) {
+        setTimeout(function() {
+            var uid = 'demo_' + type;
+            engine.spritePrefs[uid] = type;
+            engine.handleChatMessage({
+                sender: { channelId: uid, displayname: DEMO_NAMES[i % DEMO_NAMES.length], platform: 'TWITCH' },
+                fragments: [{ type:'TEXT', raw: DEMO_MESSAGES[i % DEMO_MESSAGES.length] }]
+            });
+        }, i * 800);
+    });
+
+
+}
+</script>
+</body>
+</html>

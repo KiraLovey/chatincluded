@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatIncluded — Brand Palette</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sun-core:     #F5C842;
+      --sun-warm:     #E8A020;
+      --sun-glow:     #FBE27A;
+      --slate-deep:   #1E2B3A;
+      --slate-mid:    #2E4057;
+      --slate-light:  #4A6380;
+      --slate-mist:   #8DA8BF;
+      --cream:        #FDF6E3;
+      --white:        #FFFFFF;
+      --text-dark:    #12202E;
+      --text-mid:     #3A5068;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--slate-deep);
+      color: var(--cream);
+      min-height: 100vh;
+      padding: 48px 32px;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* HEADER */
+    .header {
+      margin-bottom: 64px;
+    }
+
+    .wordmark {
+      font-family: 'DM Serif Display', serif;
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--sun-core);
+      margin-bottom: 16px;
+    }
+
+    .header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(36px, 6vw, 64px);
+      line-height: 1.05;
+      color: var(--cream);
+      margin-bottom: 16px;
+    }
+
+    .header h1 em {
+      font-style: italic;
+      color: var(--sun-core);
+    }
+
+    .header p {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--slate-mist);
+      max-width: 480px;
+      line-height: 1.7;
+    }
+
+    /* DIVIDER */
+    .divider {
+      width: 48px;
+      height: 2px;
+      background: var(--sun-core);
+      margin: 48px 0;
+      opacity: 0.6;
+    }
+
+    /* SECTION LABEL */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--slate-mist);
+      margin-bottom: 24px;
+    }
+
+    /* PALETTE GRID */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 64px;
+    }
+
+    .swatch {
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--slate-mid);
+    }
+
+    .swatch-color {
+      height: 100px;
+      width: 100%;
+    }
+
+    .swatch-info {
+      padding: 12px 14px;
+    }
+
+    .swatch-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cream);
+      margin-bottom: 4px;
+    }
+
+    .swatch-hex {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--slate-mist);
+      font-family: monospace;
+      letter-spacing: 0.05em;
+    }
+
+    .swatch-role {
+      font-size: 10px;
+      color: var(--slate-mist);
+      margin-top: 6px;
+      line-height: 1.5;
+      opacity: 0.8;
+    }
+
+    /* USAGE SECTION */
+    .usage-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 64px;
+    }
+
+    @media (max-width: 600px) {
+      .usage-grid { grid-template-columns: 1fr; }
+    }
+
+    .usage-card {
+      background: var(--slate-mid);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .usage-card h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: var(--sun-core);
+      margin-bottom: 12px;
+    }
+
+    .usage-card ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .usage-card ul li {
+      font-size: 13px;
+      color: var(--slate-mist);
+      line-height: 1.8;
+      padding-left: 14px;
+      position: relative;
+    }
+
+    .usage-card ul li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--sun-warm);
+      font-size: 11px;
+    }
+
+    /* MOCK UI PREVIEW */
+    .preview-section {
+      margin-bottom: 64px;
+    }
+
+    .preview-card {
+      background: var(--slate-mid);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .preview-nav {
+      background: var(--slate-deep);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .preview-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: var(--cream);
+    }
+
+    .preview-logo span {
+      color: var(--sun-core);
+    }
+
+    .preview-nav-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .preview-nav-links a {
+      font-size: 12px;
+      color: var(--slate-mist);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+    }
+
+    .preview-hero {
+      padding: 48px 32px;
+      background: linear-gradient(135deg, var(--slate-deep) 0%, var(--slate-mid) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .preview-hero::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245,200,66,0.12) 0%, transparent 70%);
+    }
+
+    .preview-hero h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(22px, 4vw, 32px);
+      color: var(--cream);
+      margin-bottom: 12px;
+      max-width: 420px;
+      line-height: 1.2;
+    }
+
+    .preview-hero h2 em {
+      font-style: italic;
+      color: var(--sun-core);
+    }
+
+    .preview-hero p {
+      font-size: 13px;
+      color: var(--slate-mist);
+      max-width: 360px;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    .preview-btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--sun-core);
+      color: var(--slate-deep);
+      border: none;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--cream);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 400;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+    }
+
+    /* TWITTER MOCK */
+    .twitter-mock {
+      background: var(--slate-mid);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 64px;
+    }
+
+    .tweet-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .tweet-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sun-core), var(--sun-warm));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: var(--slate-deep);
+      flex-shrink: 0;
+    }
+
+    .tweet-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tweet-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--cream);
+    }
+
+    .tweet-handle {
+      font-size: 12px;
+      color: var(--slate-mist);
+    }
+
+    .tweet-body {
+      font-size: 15px;
+      color: var(--cream);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    .tweet-body .highlight {
+      color: var(--sun-core);
+    }
+
+    .tweet-footer {
+      font-size: 11px;
+      color: var(--slate-mist);
+    }
+
+    /* TYPOGRAPHY SECTION */
+    .type-section {
+      margin-bottom: 64px;
+    }
+
+    .type-row {
+      background: var(--slate-mid);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 12px;
+    }
+
+    .type-label {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--slate-mist);
+      margin-bottom: 8px;
+    }
+
+    .type-display {
+      font-family: 'DM Serif Display', serif;
+      font-size: 36px;
+      color: var(--cream);
+      line-height: 1.1;
+    }
+
+    .type-display em {
+      color: var(--sun-core);
+      font-style: italic;
+    }
+
+    .type-heading {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--cream);
+    }
+
+    .type-body {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--slate-mist);
+      line-height: 1.7;
+    }
+
+    .type-ui {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sun-core);
+      letter-spacing: 0.05em;
+    }
+
+    /* FOOTER NOTE */
+    .footer-note {
+      font-size: 12px;
+      color: var(--slate-light);
+      line-height: 1.7;
+      padding-top: 32px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="wordmark">ChatIncluded — Brand Identity</div>
+      <h1>Sunflower <em>&</em> Slate</h1>
+      <p>A warm, grounded palette built for a tool that believes every viewer deserves to be heard — regardless of where they're from.</p>
+    </div>
+
+    <!-- PALETTE -->
+    <div class="section-label">Color Palette</div>
+    <div class="palette-grid">
+
+      <div class="swatch">
+        <div class="swatch-color" style="background:#F5C842;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Sun Core</div>
+          <div class="swatch-hex">#F5C842</div>
+          <div class="swatch-role">Primary accent. Buttons, highlights, logo mark.</div>
+        </div>
+      </div>
+
+      <div class="swatch">
+        <div class="swatch-color" style="background:#E8A020;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Sun Warm</div>
+          <div class="swatch-hex">#E8A020</div>
+          <div class="swatch-role">Hover states, active links, emphasis.</div>
+        </div>
+      </div>
+
+      <div class="swatch">
+        <div class="swatch-color" style="background:#FBE27A;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Sun Glow</div>
+          <div class="swatch-hex">#FBE27A</div>
+          <div class="swatch-role">Subtle highlights, backgrounds, glow effects.</div>
+        </div>
+      </div>
+
+      <div class="swatch">
+        <div class="swatch-color" style="background:#1E2B3A;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Slate Deep</div>
+          <div class="swatch-hex">#1E2B3A</div>
+          <div class="swatch-role">Primary background, dark mode base.</div>
+        </div>
+      </div>
+
+      <div class="swatch">
+        <div class="swatch-color" style="background:#2E4057;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Slate Mid</div>
+          <div class="swatch-hex">#2E4057</div>
+          <div class="swatch-role">Cards, panels, secondary surfaces.</div>
+        </div>
+      </div>
+
+      <div class="swatch">
+        <div class="swatch-color" style="background:#4A6380;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Slate Light</div>
+          <div class="swatch-hex">#4A6380</div>
+          <div class="swatch-role">Borders, dividers, inactive states.</div>
+        </div>
+      </div>
+
+      <div class="swatch">
+        <div class="swatch-color" style="background:#8DA8BF;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Slate Mist</div>
+          <div class="swatch-hex">#8DA8BF</div>
+          <div class="swatch-role">Body text, captions, secondary info.</div>
+        </div>
+      </div>
+
+      <div class="swatch">
+        <div class="swatch-color" style="background:#FDF6E3; border-top: 1px solid rgba(0,0,0,0.06);"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Cream</div>
+          <div class="swatch-hex">#FDF6E3</div>
+          <div class="swatch-role">Primary text on dark, light mode base.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- USAGE -->
+    <div class="section-label">How to Use It</div>
+    <div class="usage-grid">
+      <div class="usage-card">
+        <h3>Website</h3>
+        <ul>
+          <li>Slate Deep as the page background</li>
+          <li>Sun Core for all CTAs and key links</li>
+          <li>Slate Mid for cards and feature blocks</li>
+          <li>Cream for headlines, Slate Mist for body</li>
+          <li>Sun Glow as a subtle radial glow behind hero</li>
+        </ul>
+      </div>
+      <div class="usage-card">
+        <h3>Twitter/X</h3>
+        <ul>
+          <li>Sun Core as your profile accent color</li>
+          <li>Header image: Slate Deep background + Sun Core wordmark</li>
+          <li>Graphics: dark base with yellow highlights</li>
+          <li>Avoid white backgrounds — stay in the dark palette</li>
+          <li>Sun Glow for quote graphics and announcements</li>
+        </ul>
+      </div>
+      <div class="usage-card">
+        <h3>Do</h3>
+        <ul>
+          <li>Let yellow breathe — use it sparingly for impact</li>
+          <li>Pair Slate Deep + Cream for readable dark mode text</li>
+          <li>Use Sun Warm on hover, never as default</li>
+          <li>Keep backgrounds dark to feel native to gaming</li>
+        </ul>
+      </div>
+      <div class="usage-card">
+        <h3>Don't</h3>
+        <ul>
+          <li>Don't put yellow text on cream — low contrast</li>
+          <li>Don't use bright white — use Cream instead</li>
+          <li>Don't add other accent colors — keep it two-tone</li>
+          <li>Don't use gradients on buttons — flat yellow only</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- TYPOGRAPHY -->
+    <div class="section-label">Typography</div>
+    <div class="type-section">
+      <div class="type-row">
+        <div class="type-label">Display — DM Serif Display</div>
+        <div class="type-display">Every viewer <em>included.</em></div>
+      </div>
+      <div class="type-row">
+        <div class="type-label">Heading — DM Serif Display</div>
+        <div class="type-heading">Real-time chat translation for streamers</div>
+      </div>
+      <div class="type-row">
+        <div class="type-label">Body — DM Sans Light</div>
+        <div class="type-body">ChatIncluded auto-detects your viewers' languages and translates their messages in real time. Free. Open source. Built for community.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-label">UI / Labels — DM Sans Semibold</div>
+        <div class="type-ui">Get Started — Free Forever</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- WEBSITE PREVIEW -->
+    <div class="section-label">Website Preview</div>
+    <div class="preview-section">
+      <div class="preview-card">
+        <div class="preview-nav">
+          <div class="preview-logo">Chat<span>Included</span></div>
+          <div class="preview-nav-links">
+            <a href="#">Docs</a>
+            <a href="#">GitHub</a>
+            <a href="#">Casterlabs</a>
+          </div>
+        </div>
+        <div class="preview-hero">
+          <h2>Your chat, in every <em>language.</em></h2>
+          <p>Auto-detects and translates viewer messages in real time on Twitch, Kick, and YouTube. Free forever. No API key storage. Just stream.</p>
+          <div class="preview-btn-group">
+            <button class="btn-primary">Get Started — It's Free</button>
+            <button class="btn-secondary">View on GitHub</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- TWITTER MOCK -->
+    <div class="section-label">Twitter/X Post Preview</div>
+    <div class="twitter-mock">
+      <div class="tweet-header">
+        <div class="tweet-avatar">C</div>
+        <div class="tweet-meta">
+          <div class="tweet-name">ChatIncluded</div>
+          <div class="tweet-handle">@ChatIncluded</div>
+        </div>
+      </div>
+      <div class="tweet-body">
+        Imagine a streaming plugin that detects every chatter's language automatically and translates their message into your language in real time.<br><br>
+        There's no need to imagine.<br><br>
+        <span class="highlight">chatincluded.live</span>
+      </div>
+      <div class="tweet-footer">Free · Open Source · Built on @Casterlabs</div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer-note">
+      ChatIncluded Brand Identity · Sunflower & Slate · Built for community, free forever.<br>
+      Run final color selections through USPTO and your state LLC registry before committing to the full umbrella brand.
+    </div>
+
+  </div>
+</body>
+</html>

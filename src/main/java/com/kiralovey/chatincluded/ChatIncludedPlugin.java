@@ -7,6 +7,9 @@ import co.casterlabs.caffeinated.pluginsdk.koi.Koi;
 import co.casterlabs.caffeinated.pluginsdk.widgets.Widget;
 import co.casterlabs.caffeinated.pluginsdk.widgets.WidgetDetails;
 import co.casterlabs.caffeinated.pluginsdk.widgets.WidgetDetails.WidgetDetailsCategory;
+import co.casterlabs.caffeinated.pluginsdk.widgets.WidgetType;
+import co.casterlabs.commons.functional.tuples.Pair;
+import java.io.IOException;
 
 @CaffeinatedPluginImplementation
 public class ChatIncludedPlugin extends CaffeinatedPlugin {
@@ -25,6 +28,17 @@ public class ChatIncludedPlugin extends CaffeinatedPlugin {
                         .withCategory(WidgetDetailsCategory.OTHER)
                         .withFriendlyName("ChatIncluded Settings"),
                 ChatIncludedWidget.class
+        );
+
+        this.getPlugins().registerWidget(
+                this,
+                new WidgetDetails()
+                        .withNamespace("com.kiralovey.chatincluded.pixies")
+                        .withIcon("auto_fix_high")
+                        .withCategory(WidgetDetailsCategory.OTHER)
+                        .withFriendlyName("ChatIncluded Pixies")
+                        .withType(WidgetType.WIDGET),
+                PixiesWidget.class
         );
 
         // Clean API call using the public Caffeinated interface from the SDK
@@ -97,6 +111,14 @@ public class ChatIncludedPlugin extends CaffeinatedPlugin {
                 }
             }
         } catch (Exception ignored) {}
+    }
+
+    @Override
+    public Pair<String, String> getResource(String path) throws IOException {
+        if (path != null && path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        return super.getResource(path);
     }
 
     @Override

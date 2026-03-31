@@ -151,6 +151,13 @@ public class ChatListener implements KoiLifeCycleHandler, KoiEventListener {
             return;
         }
 
+        // ── 9.5. Skip if message has excessive character repetition (noise) ──
+        if (text.matches("(?s).*(.)(\\1){2,}.*")) {
+            plugin.getLogger().debug("Skipping — repeated character noise: " + text);
+            usageTracker.recordFiltered(UsageTracker.FilterReason.REPEATED_CHARS);
+            return;
+        }
+
         // ── 10. Deduplication and rate limiting ───────────────────────────────
         int hash = text.strip().hashCode();
         if (tracker.isDuplicate(hash, settings.deduplicationWindowSeconds)) {
@@ -170,6 +177,13 @@ public class ChatListener implements KoiLifeCycleHandler, KoiEventListener {
             deepL.translate(cleanText, targetLang)
                 .thenAccept(result -> {
                     if (result.detectedSourceLanguage.startsWith(targetLang)) {
+                        usageTracker.recordFiltered(UsageTracker.FilterReason.SAME_LANGUAGE);
+                        return;
+                    }
+
+                    // Skip English — streamer already understands English
+                    if (result.detectedSourceLanguage.startsWith("EN")) {
+                        prefs.setAuto(senderName, result.detectedSourceLanguage);
                         usageTracker.recordFiltered(UsageTracker.FilterReason.SAME_LANGUAGE);
                         return;
                     }

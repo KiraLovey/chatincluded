@@ -51,11 +51,32 @@ ChatIncluded runs as a plugin inside Casterlabs. If you don't have it yet:
 2. After signing in, click your account name → **Account**
 3. Scroll down to find your **Authentication Key** and copy it — you'll need it in Step 4
 
-### Step 3 — Run the ChatIncluded Installer
+### Step 3 — Install ChatIncluded
 
+#### Windows
 1. [**Download ChatIncluded-Setup.exe**](https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-Setup.exe)
 2. Run the installer — it detects Casterlabs automatically and drops the plugin into the right place
 3. Open (or restart) Casterlabs when the installer finishes
+
+#### macOS
+1. [**Download chatincluded-1.0.0.jar**](https://github.com/KiraLovey/chatincluded/raw/main/chatincluded-1.0.0.jar) and [**install.sh**](https://github.com/KiraLovey/chatincluded/raw/main/install.sh) into the same folder
+2. Open Terminal and run:
+   ```bash
+   chmod +x install.sh && ./install.sh
+   ```
+3. Follow the prompts — the script detects Casterlabs and installs into the correct plugins folder
+4. Open (or restart) Casterlabs when the script finishes
+
+#### Linux (Ubuntu and other distros)
+1. [**Download chatincluded-1.0.0.jar**](https://github.com/KiraLovey/chatincluded/raw/main/chatincluded-1.0.0.jar) and [**install.sh**](https://github.com/KiraLovey/chatincluded/raw/main/install.sh) into the same folder
+2. Open a terminal and run:
+   ```bash
+   chmod +x install.sh && ./install.sh
+   ```
+3. Follow the prompts — the script installs into `~/.local/share/casterlabs-caffeinated/plugins` by default
+4. Open (or restart) Casterlabs when the script finishes
+
+> **Manual install (any platform):** If you prefer, just copy `chatincluded-1.0.0.jar` directly into your Casterlabs plugins folder. In Casterlabs: Settings → Plugins → Open Plugins Folder.
 
 ### Step 4 — Configure the Plugin
 
@@ -80,7 +101,11 @@ When a new version is available, ChatIncluded will notify you in the Casterlabs 
 [ChatIncluded] Update guide    : https://chatincluded.live
 ```
 
-To update, [download and run the latest installer](https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-Setup.exe). It overwrites the existing plugin file automatically. Your settings are preserved.
+To update, download and run the latest installer for your platform:
+- **Windows** — [ChatIncluded-Setup.exe](https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-Setup.exe)
+- **macOS / Linux** — download the new `chatincluded-1.0.0.jar` and re-run `install.sh`, or copy the JAR directly into your plugins folder
+
+The installer overwrites the existing plugin file automatically. Your settings are preserved.
 
 ---
 
@@ -228,6 +253,7 @@ A normal HTTP/2 network hiccup affecting only that one message. The plugin conti
 - [x] Minimum message length filter
 - [x] Update notifications on startup
 - [x] Windows installer (ChatIncluded-Setup.exe)
+- [x] macOS / Linux installer (install.sh)
 - [x] chatincluded.live — website with documentation
 - [ ] Code signing (in progress)
 - [ ] Trovo support

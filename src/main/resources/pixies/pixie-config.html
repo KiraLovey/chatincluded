@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>ChatIncluded Pixies — Config</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0e0e18; --surface:#171728; --surface2:#1e1e32;
+      --border:#2a2a44; --accent:#a78bfa; --accent2:#60efff;
+      --text:#e8e8f8; --muted:#7878aa; --danger:#ff6b6b; --ok:#57e89c;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background:var(--bg); color:var(--text);
+      font-family:'Nunito',sans-serif; font-size:14px;
+      padding:20px 16px 60px;
+    }
+    h1 { font-size:18px; font-weight:900;
+         background:linear-gradient(135deg,var(--accent),var(--accent2));
+         -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+         margin-bottom:4px; }
+    .sub { color:var(--muted); font-size:12px; font-weight:700; margin-bottom:20px; }
+
+    /* ── tabs ── */
+    .tabs { display:flex; gap:4px; margin-bottom:18px; flex-wrap:wrap; }
+    .tab {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:8px; padding:6px 14px; font-weight:800; font-size:13px;
+      cursor:pointer; color:var(--muted); transition:all .15s;
+    }
+    .tab.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+    .panel { display:none; }
+    .panel.active { display:block; }
+
+    /* ── cards ── */
+    .card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:12px; padding:14px 16px; margin-bottom:12px;
+    }
+    .card-title { font-size:13px; font-weight:900; color:var(--muted);
+                  text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+
+    /* ── approval queue ── */
+    .queue-row {
+      display:flex; align-items:center; gap:10px;
+      padding:8px 0; border-bottom:1px solid var(--border);
+    }
+    .queue-row:last-child { border-bottom:none; }
+    .queue-avatar { width:38px; height:38px; border-radius:50%;
+                    background:var(--surface2); overflow:hidden; flex-shrink:0; }
+    .queue-avatar canvas { width:38px; height:38px; }
+    .queue-info { flex:1; min-width:0; }
+    .queue-name { font-weight:800; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .queue-meta { color:var(--muted); font-size:11px; font-weight:700; }
+    .btn { border:none; border-radius:8px; padding:5px 12px;
+           font-family:inherit; font-weight:800; font-size:12px; cursor:pointer; }
+    .btn-ok    { background:var(--ok);     color:#0e1e18; }
+    .btn-deny  { background:var(--danger); color:#1e0e0e; }
+    .btn-small { padding:3px 9px; font-size:11px; }
+    .empty-msg { color:var(--muted); font-size:13px; font-weight:700; padding:8px 0; }
+
+    /* ── sprite library grid ── */
+    .sprite-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px;
+    }
+    .sprite-tile {
+      background:var(--surface2); border:1px solid var(--border);
+      border-radius:10px; padding:12px 8px 8px;
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+    }
+    .sprite-tile canvas { width:60px; height:72px; }
+    .tile-name { font-size:12px; font-weight:900; text-transform:capitalize; }
+    .tile-cmd  { font-family:monospace; font-size:11px; color:var(--accent2); }
+
+    /* ── audit log ── */
+    .audit-row {
+      display:flex; align-items:baseline; gap:8px;
+      padding:5px 0; border-bottom:1px solid var(--border); font-size:12px;
+    }
+    .audit-row:last-child { border-bottom:none; }
+    .audit-ts   { color:var(--muted); flex-shrink:0; font-weight:700; }
+    .audit-user { font-weight:800; color:var(--accent); }
+    .audit-msg  { color:var(--text); }
+
+    /* ── settings rows ── */
+    .setting-row {
+      display:flex; align-items:center; gap:10px;
+      padding:8px 0; border-bottom:1px solid var(--border);
+    }
+    .setting-row:last-child { border-bottom:none; }
+    .setting-label { flex:1; font-weight:800; font-size:13px; }
+    .setting-hint  { font-size:11px; font-weight:700; color:var(--muted); display:block; }
+    input[type=range] { flex-shrink:0; width:120px; accent-color:var(--accent); }
+    input[type=number] { width:80px; background:var(--surface2); border:1px solid var(--border);
+                         border-radius:6px; padding:4px 8px; color:var(--text);
+                         font-family:inherit; font-size:13px; font-weight:700; }
+    input[type=text]   { flex:1; background:var(--surface2); border:1px solid var(--border);
+                         border-radius:6px; padding:4px 8px; color:var(--text);
+                         font-family:inherit; font-size:13px; font-weight:700; }
+    .toggle { position:relative; width:38px; height:22px; flex-shrink:0; }
+    .toggle input { opacity:0; width:0; height:0; }
+    .toggle-track {
+      position:absolute; inset:0; border-radius:11px;
+      background:var(--surface2); border:1px solid var(--border);
+      transition:background .2s;
+    }
+    .toggle input:checked + .toggle-track { background:var(--accent); border-color:var(--accent); }
+    .toggle-knob {
+      position:absolute; top:3px; left:3px; width:16px; height:16px;
+      border-radius:50%; background:#fff; transition:transform .2s;
+    }
+    .toggle input:checked ~ .toggle-knob { transform:translateX(16px); }
+    .val-display { min-width:32px; text-align:right; font-size:12px;
+                   font-weight:800; color:var(--accent); }
+
+    /* ── library link banner ── */
+    .link-banner {
+      background:var(--surface2); border:1px solid var(--border);
+      border-radius:10px; padding:10px 14px;
+      display:flex; align-items:center; gap:10px; margin-bottom:14px;
+    }
+    .link-banner-label { color:var(--muted); font-size:12px; font-weight:700; }
+    .link-banner a { color:var(--accent2); font-weight:800; font-size:13px;
+                     text-decoration:none; word-break:break-all; }
+    .badge {
+      display:inline-block; border-radius:5px; padding:2px 7px;
+      font-size:11px; font-weight:800; text-transform:uppercase;
+      background:var(--accent); color:#fff; flex-shrink:0;
+    }
+  </style>
+</head>
+<body>
+
+<h1>✨ ChatIncluded Pixies</h1>
+<div class="sub" id="subline">Streamer config panel</div>
+
+<div id="library-link-banner" class="link-banner" style="display:none">
+  <span class="badge">Library</span>
+  <div>
+    <div class="link-banner-label">Share this URL with your viewers</div>
+    <a id="library-link-anchor" href="#" target="_blank">—</a>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="queue">Approval Queue</div>
+  <div class="tab" data-tab="library">Pixie Library</div>
+  <div class="tab" data-tab="audit">Audit Log</div>
+  <div class="tab" data-tab="settings">Settings</div>
+</div>
+
+<!-- ── Approval Queue ── -->
+<div id="panel-queue" class="panel active">
+  <div class="card">
+    <div class="card-title">Pending !pixie requests</div>
+    <div id="queue-list"><div class="empty-msg">No pending requests.</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Active pixies</div>
+    <div id="active-list"><div class="empty-msg">No pixies on screen yet.</div></div>
+  </div>
+</div>
+
+<!-- ── Pixie Library ── -->
+<div id="panel-library" class="panel">
+  <div class="card">
+    <div class="card-title">All available pixies — viewers use !pixie &lt;name&gt;</div>
+    <div class="sprite-grid" id="sprite-grid"></div>
+  </div>
+</div>
+
+<!-- ── Audit Log ── -->
+<div id="panel-audit" class="panel">
+  <div class="card">
+    <div class="card-title">Recent events</div>
+    <div id="audit-log"><div class="empty-msg">No events yet.</div></div>
+  </div>
+</div>
+
+<!-- ── Settings ── -->
+<div id="panel-settings" class="panel">
+  <div class="card">
+    <div class="card-title">Appearance</div>
+    <div class="setting-row">
+      <div class="setting-label">Hue-shift pixies <span class="setting-hint">Random colour per viewer</span></div>
+      <label class="toggle"><input type="checkbox" id="s-hueShift" checked><div class="toggle-track"></div><div class="toggle-knob"></div></label>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">Show platform icon <span class="setting-hint">Badge on pixie</span></div>
+      <label class="toggle"><input type="checkbox" id="s-showPlatformIcon"><div class="toggle-track"></div><div class="toggle-knob"></div></label>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">Pixie scale <span class="setting-hint">1 tiny → 6 huge</span></div>
+      <input type="range" id="s-spriteScale" min="1" max="6" step="1" value="3">
+      <div class="val-display" id="v-spriteScale">3</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Movement</div>
+    <div class="setting-row">
+      <div class="setting-label">Min walk speed</div>
+      <input type="number" id="s-walkSpeedMin" min="0.05" max="2" step="0.05" value="0.3">
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">Max walk speed</div>
+      <input type="number" id="s-walkSpeedMax" min="0.05" max="2" step="0.05" value="0.9">
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">Max pixies on screen</div>
+      <input type="number" id="s-maxPixies" min="5" max="80" step="1" value="40">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Timing</div>
+    <div class="setting-row">
+      <div class="setting-label">Inactivity timeout (ms) <span class="setting-hint">Pixie walks off after this long with no chat</span></div>
+      <input type="number" id="s-inactivityMs" min="10000" max="600000" step="1000" value="90000">
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">Bubble display time (ms)</div>
+      <input type="number" id="s-bubbleHideMs" min="500" max="30000" step="500" value="5000">
+    </div>
+  </div>
+
+</div>
+
+<script src="pixie-shared.js"></script>
+<script>
+// ── tab switching ─────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(function(t) {
+    t.addEventListener('click', function() {
+        document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); });
+        document.querySelectorAll('.panel').forEach(function(x){ x.classList.remove('active'); });
+        t.classList.add('active');
+        document.getElementById('panel-' + t.dataset.tab).classList.add('active');
+    });
+});
+
+// ── range display ─────────────────────────────────────────────────────────
+document.getElementById('s-spriteScale').addEventListener('input', function() {
+    document.getElementById('v-spriteScale').textContent = this.value;
+});
+
+// ── audit helpers ─────────────────────────────────────────────────────────
+var auditEntries = [];
+function addAudit(username, msg) {
+    var now = new Date();
+    var ts  = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0');
+    auditEntries.unshift({ ts:ts, username:username, msg:msg });
+    if (auditEntries.length > 100) auditEntries.pop();
+    renderAudit();
+}
+function renderAudit() {
+    var el = document.getElementById('audit-log');
+    if (!auditEntries.length) { el.innerHTML = '<div class="empty-msg">No events yet.</div>'; return; }
+    el.innerHTML = auditEntries.map(function(e) {
+        return '<div class="audit-row"><span class="audit-ts">' + e.ts + '</span><span class="audit-user">' + escapeHtml(e.username) + '</span><span class="audit-msg">' + escapeHtml(e.msg) + '</span></div>';
+    }).join('');
+}
+
+// ── pixie library grid ────────────────────────────────────────────────────
+function renderSpriteGrid() {
+    var grid = document.getElementById('sprite-grid');
+    grid.innerHTML = '';
+    SPRITE_NAMES.forEach(function(name) {
+        var tile = document.createElement('div');
+        tile.className = 'sprite-tile';
+        var cv = document.createElement('canvas');
+        cv.width = PX_W; cv.height = PX_H;
+        drawSpriteToCanvas(cv, name, SPRITE_DEFAULT_HUES[name] || 320);
+        var label = document.createElement('div');
+        label.className = 'tile-name';
+        label.textContent = name;
+        var cmd = document.createElement('div');
+        cmd.className = 'tile-cmd';
+        cmd.textContent = '!pixie ' + name;
+        tile.appendChild(cv);
+        tile.appendChild(label);
+        tile.appendChild(cmd);
+        grid.appendChild(tile);
+    });
+}
+
+// ── pending requests & active pixies ─────────────────────────────────────
+var pendingRequests = [];  // { userId, username, requested }
+
+function renderQueue() {
+    var el = document.getElementById('queue-list');
+    if (!pendingRequests.length) { el.innerHTML = '<div class="empty-msg">No pending requests.</div>'; return; }
+    el.innerHTML = pendingRequests.map(function(req, i) {
+        var cv = '<canvas id="qcv-' + i + '" width="' + PX_W + '" height="' + PX_H + '"></canvas>';
+        return '<div class="queue-row">'
+            + '<div class="queue-avatar">' + cv + '</div>'
+            + '<div class="queue-info"><div class="queue-name">' + escapeHtml(req.username) + '</div>'
+            + '<div class="queue-meta">wants: !pixie ' + escapeHtml(req.requested) + '</div></div>'
+            + '<button class="btn btn-ok btn-small" onclick="approveReq(' + i + ')">Approve</button>'
+            + '<button class="btn btn-deny btn-small" onclick="denyReq(' + i + ')">Deny</button>'
+            + '</div>';
+    }).join('');
+    pendingRequests.forEach(function(req, i) {
+        var cv = document.getElementById('qcv-' + i);
+        if (cv) drawSpriteToCanvas(cv, req.requested, SPRITE_DEFAULT_HUES[req.requested] || 320);
+    });
+}
+
+function approveReq(i) {
+    var req = pendingRequests[i];
+    if (!req) return;
+    Widget.emit('pixie_approved', { userId: req.userId, pixie: req.requested });
+    addAudit(req.username, 'pixie approved: ' + req.requested);
+    pendingRequests.splice(i, 1);
+    renderQueue();
+}
+function denyReq(i) {
+    var req = pendingRequests[i];
+    if (!req) return;
+    addAudit(req.username, 'pixie denied: ' + req.requested);
+    pendingRequests.splice(i, 1);
+    renderQueue();
+}
+
+function renderActive(pixies) {
+    var el = document.getElementById('active-list');
+    if (!pixies || !pixies.length) { el.innerHTML = '<div class="empty-msg">No pixies on screen yet.</div>'; return; }
+    el.innerHTML = pixies.map(function(p) {
+        return '<div class="queue-row">'
+            + '<div class="queue-info"><div class="queue-name">' + escapeHtml(p.displayName) + '</div>'
+            + '<div class="queue-meta">' + escapeHtml(p.spriteType) + ' · ' + escapeHtml(p.platform) + '</div></div>'
+            + '<button class="btn btn-deny btn-small" onclick="Widget.emit(\'pixie_remove\',{userId:\'' + escapeHtml(p.userId) + '\'})">Remove</button>'
+            + '</div>';
+    }).join('');
+}
+
+// ── Widget integration ────────────────────────────────────────────────────
+Widget.on('init', function() {
+    renderSpriteGrid();
+    loadSettingsIntoUI();
+});
+
+Widget.on('update', function() {
+    loadSettingsIntoUI();
+});
+
+Widget.on('pixie_state', function(data) {
+    if (data && data.pixies) renderActive(data.pixies);
+});
+
+Widget.on('pixie_request', function(data) {
+    if (!data) return;
+    pendingRequests.push({ userId: data.userId, username: data.username, requested: data.pixie });
+    renderQueue();
+    addAudit(data.username, 'requested pixie: ' + data.pixie);
+});
+
+Koi.on('RICH_MESSAGE', function(event) {
+    var sender = event.sender || {};
+    var frags  = event.fragments || [];
+    var text   = frags.filter(function(f){ return f.type==='TEXT'; }).map(function(f){ return f.raw||f.text||''; }).join('').trim();
+    if (text) addAudit(sender.displayname || sender.username || '?', text);
+});
+
+function loadSettingsIntoUI() {
+    var set = function(id, key, fallback) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var val = Widget.getSetting(key);
+        if (val === null || val === undefined) val = fallback;
+        if (el.type === 'checkbox') el.checked = !!val;
+        else el.value = val;
+    };
+    set('s-hueShift',         'appearance.hueShift',         true);
+    set('s-showPlatformIcon', 'appearance.showPlatformIcon', false);
+    set('s-spriteScale',      'appearance.spriteScale',       3);
+    set('s-walkSpeedMin',     'movement.walkSpeedMin',        0.3);
+    set('s-walkSpeedMax',     'movement.walkSpeedMax',        0.9);
+    set('s-maxPixies',        'movement.maxPixies',           40);
+    set('s-inactivityMs',     'timing.inactivityMs',          90000);
+    set('s-bubbleHideMs',     'timing.bubbleHideMs',          5000);
+    document.getElementById('v-spriteScale').textContent =
+        document.getElementById('s-spriteScale').value;
+}
+</script>
+</body>
+</html>

@@ -27,7 +27,8 @@ public class UsageTracker {
         EMOTE_ONLY,
         SAME_LANGUAGE,
         DEDUPLICATED,
-        BOT_EXCLUDED
+        BOT_EXCLUDED,
+        REPEATED_CHARS
     }
 
     // Session counters

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>ChatIncluded Pixies — Sprite Library</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sun-core:   #F5C842;
+      --sun-warm:   #E8A020;
+      --sun-glow:   #FBE27A;
+      --slate-deep: #1E2B3A;
+      --slate-mid:  #2E4057;
+      --slate-light:#4A6380;
+      --slate-mist: #8DA8BF;
+      --cream:      #FDF6E3;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background:var(--slate-deep); color:var(--cream);
+      font-family:'DM Sans', sans-serif;
+      min-height:100vh; padding:48px 24px 72px;
+    }
+
+    /* ── hero header ── */
+    header { max-width:860px; margin:0 auto 48px; }
+    .wordmark {
+      font-family:'DM Sans', sans-serif;
+      font-size:11px; font-weight:600;
+      letter-spacing:.2em; text-transform:uppercase;
+      color:var(--sun-core); margin-bottom:14px;
+    }
+    header h1 {
+      font-family:'DM Serif Display', serif;
+      font-size:clamp(28px,5vw,48px); line-height:1.1;
+      color:var(--cream); margin-bottom:12px;
+    }
+    header h1 em { font-style:italic; color:var(--sun-core); }
+    header p {
+      font-size:15px; font-weight:300; color:var(--slate-mist);
+      max-width:480px; line-height:1.7;
+    }
+
+    /* ── how-to band ── */
+    .how-to {
+      max-width:860px; margin:0 auto 40px;
+      background:var(--slate-mid);
+      border-radius:12px; padding:16px 22px;
+      display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    }
+    .how-to-badge {
+      background:var(--sun-core); color:var(--slate-deep);
+      border-radius:6px; padding:4px 12px;
+      font-size:11px; font-weight:600; letter-spacing:.08em;
+      text-transform:uppercase; white-space:nowrap; flex-shrink:0;
+    }
+    .how-to-text {
+      font-size:13px; font-weight:400; color:var(--slate-mist);
+      line-height:1.6;
+    }
+    .how-to-text strong { color:var(--cream); font-weight:600; }
+
+    /* ── divider ── */
+    .divider {
+      width:48px; height:2px;
+      background:var(--sun-core); opacity:.5;
+      margin:0 auto 40px;
+    }
+
+    /* ── section label ── */
+    .section-label {
+      max-width:860px; margin:0 auto 20px;
+      font-size:11px; font-weight:600;
+      letter-spacing:.18em; text-transform:uppercase;
+      color:var(--slate-mist);
+    }
+
+    /* ── sprite grid ── */
+    .grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(185px,1fr));
+      gap:16px; max-width:860px; margin:0 auto;
+    }
+    .sprite-card {
+      background:var(--slate-mid);
+      border:1px solid var(--slate-light);
+      border-radius:14px; padding:22px 18px 18px;
+      display:flex; flex-direction:column; align-items:center; gap:10px;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .sprite-card:hover {
+      border-color:var(--sun-warm);
+      box-shadow:0 0 0 3px rgba(245,200,66,.1);
+    }
+    .stage {
+      width:100%; height:116px;
+      display:flex; align-items:flex-end; justify-content:center;
+    }
+    .pixie-wrap {
+      display:flex; flex-direction:column; align-items:center; gap:4px;
+      position:relative;
+    }
+    canvas { display:block; }
+    .aura {
+      border-radius:50%; filter:blur(7px); opacity:.35;
+      position:absolute; bottom:-4px; left:50%; transform:translateX(-50%);
+      pointer-events:none;
+    }
+
+    /* name + command */
+    .card-title {
+      font-family:'DM Serif Display', serif;
+      font-size:17px; text-transform:capitalize; text-align:center;
+      color:var(--cream);
+    }
+    .cmd {
+      background:var(--slate-deep);
+      border:1px solid var(--slate-light);
+      border-radius:6px; padding:4px 12px;
+      font-family:monospace; font-size:12px; font-weight:600;
+      color:var(--sun-glow); cursor:pointer;
+      transition:border-color .15s, color .15s;
+      user-select:none;
+    }
+    .cmd:hover   { border-color:var(--sun-core); color:var(--sun-core); }
+    .cmd.copied  { border-color:var(--sun-core); color:var(--sun-core); }
+
+    /* colour palette dots */
+    .hue-strip { display:flex; gap:5px; flex-wrap:wrap; justify-content:center; margin-top:2px; }
+    .hue-dot {
+      width:15px; height:15px; border-radius:50%; cursor:pointer;
+      border:2px solid transparent; transition:border-color .15s, transform .1s;
+    }
+    .hue-dot:hover, .hue-dot.active { border-color:var(--cream); transform:scale(1.25); }
+
+    /* bob animation */
+    @keyframes bob {
+      0%,100% { transform:translateY(0); }
+      50%      { transform:translateY(-5px); }
+    }
+    .bob { animation:bob 2.2s ease-in-out infinite; }
+
+    /* ── footer ── */
+    footer {
+      max-width:860px; margin:56px auto 0;
+      padding-top:24px; border-top:1px solid rgba(255,255,255,.07);
+      font-size:12px; font-weight:300; color:var(--slate-light);
+      line-height:1.7;
+    }
+    footer a { color:var(--sun-warm); text-decoration:none; }
+    footer a:hover { color:var(--sun-core); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">ChatIncluded — Pixies</div>
+  <h1>Pick your <em>sprite.</em></h1>
+  <p>Type a command in chat and your pixie will walk across the stream overlay. Click a colour dot to preview recolours, then click the command to copy it.</p>
+</header>
+
+<div class="how-to">
+  <div class="how-to-badge">How it works</div>
+  <div class="how-to-text">
+    Type <strong>!pixie &lt;name&gt;</strong> in chat during the stream.
+    Your pixie spawns on the overlay and walks around — chat messages appear as bubbles above it.
+    You can change your sprite any time by typing the command again.
+  </div>
+</div>
+
+<div class="divider"></div>
+<div class="section-label">Available sprites</div>
+<div class="grid" id="grid"></div>
+
+<footer>
+  Part of <a href="https://chatincluded.live">ChatIncluded</a> — real-time multilingual chat translation for streamers. Free forever.
+</footer>
+
+<script src="pixie-shared.js"></script>
+<script>
+var W = PX_W, H = PX_H;
+var PALETTES = [
+    {l:'Pink',hue:320},{l:'Orange',hue:28},{l:'Yellow',hue:52},{l:'Lime',hue:100},
+    {l:'Teal',hue:185},{l:'Blue',hue:220},{l:'Purple',hue:270},{l:'Red',hue:0}
+];
+var DEFAULT_HUE_ORDER = [320,28,185,100,220,270,52,0];
+var grid = document.getElementById('grid');
+
+SPRITE_NAMES.forEach(function(name, idx) {
+    var curHue = DEFAULT_HUE_ORDER[idx % DEFAULT_HUE_ORDER.length];
+
+    var card = document.createElement('div');
+    card.className = 'sprite-card';
+
+    // stage + bob wrapper
+    var stage = document.createElement('div'); stage.className = 'stage';
+    var wrap  = document.createElement('div'); wrap.className = 'pixie-wrap bob';
+    wrap.style.animationDelay = (idx * 0.37) + 's';
+
+    var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    drawSpriteToCanvas(cv, name, curHue);
+
+    var aura = document.createElement('div'); aura.className = 'aura';
+    aura.style.cssText = 'width:' + Math.round(W * .7) + 'px;height:11px;background:hsl(' + curHue + ',75%,60%);';
+
+    wrap.appendChild(cv);
+    wrap.appendChild(aura);
+    stage.appendChild(wrap);
+
+    // title
+    var title = document.createElement('div');
+    title.className = 'card-title';
+    title.textContent = name;
+
+    // copy command button
+    var cmd = document.createElement('div');
+    cmd.className = 'cmd';
+    cmd.textContent = '!pixie ' + name;
+    cmd.title = 'Click to copy';
+    cmd.addEventListener('click', function() {
+        navigator.clipboard.writeText('!pixie ' + name).then(function() {
+            cmd.textContent = '✓ Copied!';
+            cmd.classList.add('copied');
+            setTimeout(function() {
+                cmd.textContent = '!pixie ' + name;
+                cmd.classList.remove('copied');
+            }, 1600);
+        });
+    });
+
+    // colour dots
+    var strip = document.createElement('div'); strip.className = 'hue-strip';
+    var activeDot = null;
+    PALETTES.forEach(function(p) {
+        var dot = document.createElement('div');
+        dot.className = 'hue-dot' + (p.hue === curHue ? ' active' : '');
+        dot.style.background = 'hsl(' + p.hue + ',60%,58%)';
+        dot.title = p.l;
+        if (p.hue === curHue) activeDot = dot;
+        dot.addEventListener('click', function() {
+            if (activeDot) activeDot.classList.remove('active');
+            dot.classList.add('active'); activeDot = dot;
+            curHue = p.hue;
+            aura.style.background = 'hsl(' + p.hue + ',75%,60%)';
+            drawSpriteToCanvas(cv, name, p.hue);
+        });
+        strip.appendChild(dot);
+    });
+
+    card.appendChild(stage);
+    card.appendChild(title);
+    card.appendChild(cmd);
+    card.appendChild(strip);
+    grid.appendChild(card);
+});
+</script>
+</body>
+</html>

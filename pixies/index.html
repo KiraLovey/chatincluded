@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatIncluded Pixies — Every viewer, on screen.</title>
+    <meta name="description" content="ChatIncluded Pixies brings your chat to life. Viewers type !pixie in chat and their own animated character walks across your stream overlay. Every chatter, included.">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --sun-core:    #F5C842;
+            --sun-warm:    #E8A020;
+            --sun-glow:    #FBE27A;
+            --slate-deep:  #1E2B3A;
+            --slate-mid:   #2E4057;
+            --slate-light: #4A6380;
+            --slate-mist:  #8DA8BF;
+            --cream:       #FDF6E3;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            background: var(--slate-deep);
+            color: var(--cream);
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+
+        /* ── Nav (matches index.html exactly) ── */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            position: sticky;
+            top: 0;
+            background: var(--slate-deep);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+        }
+
+        .nav-logo {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.15rem;
+            font-weight: 400;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .nav-logo .logo-chat { color: var(--cream); }
+        .nav-logo .logo-inc  { color: var(--sun-core); }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            z-index: 200;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--cream);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            gap: 0;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--slate-deep);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 0.5rem 0;
+            list-style: none;
+        }
+
+        .nav-links.open { display: flex; }
+
+        .nav-links li a {
+            display: block;
+            padding: 0.85rem 2rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--slate-mist);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            transition: color 0.2s;
+        }
+
+        .nav-links li:last-child a { border-bottom: none; }
+        .nav-links li a:hover { color: var(--sun-core); }
+        .nav-links li a.active { color: var(--sun-core); }
+
+        /* ── Hero ── */
+        .hero-wrap {
+            background: linear-gradient(160deg, var(--slate-deep) 40%, var(--slate-mid));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-wrap::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            right: -5%;
+            width: 60%;
+            height: 80%;
+            background: radial-gradient(ellipse, rgba(245,200,66,0.10) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 5rem 2rem 4rem;
+            max-width: 780px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(245,200,66,0.1);
+            border: 1px solid rgba(245,200,66,0.25);
+            border-radius: 999px;
+            padding: 0.3rem 1rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            font-size: 0.78rem;
+            color: var(--sun-glow);
+            margin-bottom: 2rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-weight: 400;
+            line-height: 1.12;
+            color: var(--cream);
+            margin-bottom: 1.25rem;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            color: var(--sun-core);
+        }
+
+        .hero-sub {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            font-size: clamp(1rem, 2.5vw, 1.15rem);
+            color: var(--slate-mist);
+            max-width: 520px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.85rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.02em;
+            transition: background 0.2s, color 0.2s, transform 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+        .btn-primary { background: var(--sun-core); color: var(--slate-deep); }
+        .btn-primary:hover { background: var(--sun-warm); }
+        .btn-secondary {
+            background: transparent;
+            color: var(--cream);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn-secondary:hover { border-color: rgba(255,255,255,0.4); }
+
+        /* ── Live preview strip ── */
+        .preview-strip {
+            width: 100%;
+            height: 160px;
+            background: rgba(0,0,0,0.25);
+            border-top: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-strip canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .preview-label {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30,43,58,0.75);
+            border: 1px solid rgba(245,200,66,0.2);
+            border-radius: 999px;
+            padding: 3px 14px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--sun-glow);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        /* ── Divider ── */
+        .divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            margin: 0 2rem;
+        }
+
+        /* ── Sections ── */
+        section {
+            max-width: 940px;
+            margin: 0 auto;
+            padding: 5rem 2rem;
+        }
+
+        .section-label {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--sun-core);
+            margin-bottom: 0.85rem;
+        }
+
+        .section-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+            font-weight: 400;
+            color: var(--cream);
+            margin-bottom: 0.85rem;
+            line-height: 1.2;
+        }
+
+        .section-title em { font-style: italic; color: var(--sun-core); }
+
+        .section-desc {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            color: var(--slate-mist);
+            font-size: 1rem;
+            margin-bottom: 2.75rem;
+            max-width: 560px;
+            line-height: 1.7;
+        }
+
+        /* ── How it works steps ── */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+            background: var(--slate-mid);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 1.75rem;
+            transition: border-color 0.2s;
+        }
+
+        .step:hover { border-color: rgba(245,200,66,0.2); }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 2.1rem;
+            height: 2.1rem;
+            border-radius: 50%;
+            background: var(--sun-core);
+            color: var(--slate-deep);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-content h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--cream);
+            margin-bottom: 0.4rem;
+        }
+
+        .step-content p {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            font-size: 0.88rem;
+            color: var(--slate-mist);
+            line-height: 1.65;
+        }
+
+        code {
+            background: var(--slate-mid);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 5px;
+            padding: 0.15rem 0.45rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: var(--sun-core);
+        }
+
+        /* ── Pixie library grid ── */
+        .pixie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .pixie-card {
+            background: var(--slate-mid);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 1.5rem 1.25rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.65rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .pixie-card:hover {
+            border-color: rgba(245,200,66,0.25);
+            box-shadow: 0 0 0 3px rgba(245,200,66,0.07);
+        }
+
+        .pixie-stage {
+            width: 100%;
+            height: 116px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .pixie-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+        }
+
+        .pixie-wrap canvas { display: block; }
+
+        .pixie-aura {
+            border-radius: 50%;
+            filter: blur(7px);
+            opacity: 0.35;
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        .pixie-name {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.05rem;
+            font-weight: 400;
+            color: var(--cream);
+            text-transform: capitalize;
+            text-align: center;
+        }
+
+        .pixie-cmd {
+            background: var(--slate-deep);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 6px;
+            padding: 0.25rem 0.75rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--sun-glow);
+            cursor: pointer;
+            transition: border-color 0.15s, color 0.15s;
+            user-select: none;
+        }
+
+        .pixie-cmd:hover   { border-color: var(--sun-core); color: var(--sun-core); }
+        .pixie-cmd.copied  { border-color: var(--sun-core); color: var(--sun-core); }
+
+        .hue-strip {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 2px;
+        }
+
+        .hue-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.15s, transform 0.1s;
+        }
+
+        .hue-dot:hover, .hue-dot.active {
+            border-color: var(--cream);
+            transform: scale(1.25);
+        }
+
+        @keyframes bob {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-5px); }
+        }
+
+        .bob { animation: bob 2.2s ease-in-out infinite; }
+
+        /* ── Feature cards ── */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(268px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .feature-card {
+            background: var(--slate-mid);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 1.75rem;
+            transition: border-color 0.2s;
+        }
+
+        .feature-card:hover { border-color: rgba(245,200,66,0.2); }
+
+        .feature-icon {
+            font-size: 1.4rem;
+            margin-bottom: 0.9rem;
+            color: var(--sun-core);
+        }
+
+        .feature-card h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--cream);
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            font-size: 0.88rem;
+            color: var(--slate-mist);
+            line-height: 1.65;
+        }
+
+        /* ── CTA band ── */
+        .cta-band {
+            background: linear-gradient(135deg, var(--slate-mid), var(--slate-deep));
+            border-top: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .cta-band h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 400;
+            color: var(--cream);
+            margin-bottom: 0.75rem;
+        }
+
+        .cta-band h2 em { font-style: italic; color: var(--sun-core); }
+
+        .cta-band p {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            color: var(--slate-mist);
+            font-size: 0.95rem;
+            max-width: 460px;
+            margin: 0 auto 2rem;
+            line-height: 1.7;
+        }
+
+        /* ── Footer (matches index.html) ── */
+        footer {
+            text-align: center;
+            padding: 3.5rem 2rem;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            background: var(--slate-deep);
+        }
+
+        .footer-logo {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            display: block;
+            margin-bottom: 0.85rem;
+        }
+
+        .footer-logo .logo-chat { color: var(--cream); }
+        .footer-logo .logo-inc  { color: var(--sun-core); }
+
+        footer p {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            font-size: 0.88rem;
+            color: var(--slate-light);
+            margin-bottom: 0.75rem;
+        }
+
+        footer a {
+            color: var(--slate-mist);
+            text-decoration: none;
+            margin: 0 0.5rem;
+            font-weight: 300;
+            transition: color 0.2s;
+        }
+
+        footer a:hover { color: var(--sun-core); }
+    </style>
+</head>
+<body>
+
+    <!-- Nav -->
+    <nav>
+        <a class="nav-logo" href="/">
+            <img src="/logo.png" alt="ChatIncluded" style="height:30px;width:30px;border-radius:50%;">
+            <span class="logo-chat">Chat</span><span class="logo-inc">Included</span>
+        </a>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="/#features"    onclick="closeMenu()">Features</a></li>
+            <li><a href="/#get-started" onclick="closeMenu()">Get Started</a></li>
+            <li><a href="/#commands"    onclick="closeMenu()">Commands</a></li>
+            <li><a href="/pixies"       onclick="closeMenu()" class="active">✨ Pixies</a></li>
+            <li><a href="https://github.com/KiraLovey/chatincluded" onclick="closeMenu()">GitHub</a></li>
+        </ul>
+    </nav>
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navLinks  = document.getElementById('nav-links');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('open');
+            navLinks.classList.toggle('open');
+        });
+        function closeMenu() {
+            hamburger.classList.remove('open');
+            navLinks.classList.remove('open');
+        }
+    </script>
+
+    <!-- Hero -->
+    <div class="hero-wrap">
+        <div class="hero">
+            <div class="badge">ChatIncluded Pixies — Free Overlay</div>
+            <h1>Every viewer, <em>on screen.</em></h1>
+            <p class="hero-sub">Chat viewers become animated characters that walk along the bottom of your stream. The more they chat, the more they're included — not just in the conversation, but on the screen.</p>
+            <div class="hero-buttons">
+                <a class="btn btn-primary" href="/#get-started">Get ChatIncluded — Free</a>
+                <a class="btn btn-secondary" href="#pick-your-pixie">Pick a pixie ↓</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live preview strip -->
+    <div class="preview-strip">
+        <canvas id="preview-canvas"></canvas>
+        <div class="preview-label">Live preview</div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- How it works -->
+    <section id="how-it-works">
+        <p class="section-label">How it works</p>
+        <h2 class="section-title">Inclusion you can <em>see.</em></h2>
+        <p class="section-desc">Pixies turns passive viewers into participants — their character walks around on stream every time they chat. No account needed, no setup on their end.</p>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Add the overlay in OBS</h3>
+                    <p>In Casterlabs, add a <strong>ChatIncluded Pixies</strong> widget. Hit the copy link button and paste the URL into OBS as a Browser Source at your stream resolution. Set the background to transparent.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Viewers pick their pixie</h3>
+                    <p>A viewer types <code>!pixie fairy</code> (or cat, dog, ghost, robot, H) in chat. Their character spawns on the overlay and starts walking. Share this page so they can browse and choose.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Chat keeps them on screen</h3>
+                    <p>Every chat message appears as a bubble above their pixie. Stop chatting and they quietly walk off after the inactivity timeout — come back and they return. The most active chatters are always on screen.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- Pixie library -->
+    <section id="pick-your-pixie">
+        <p class="section-label">Pixie library</p>
+        <h2 class="section-title">Pick your pixie, <em>type to join.</em></h2>
+        <p class="section-desc">Six characters, eight colour options each. Click a colour dot to preview, then click the command to copy it — just paste it in chat.</p>
+        <div class="pixie-grid" id="pixie-grid"></div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- Features -->
+    <section id="features">
+        <p class="section-label">Features</p>
+        <h2 class="section-title">Built to make every chatter <em>feel included.</em></h2>
+        <p class="section-desc">Pixies works alongside the ChatIncluded translator — multilingual viewers get their messages translated and their character on screen at the same time.</p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">✨</div>
+                <h3>One command, instant presence</h3>
+                <p>Viewers type <code>!pixie &lt;name&gt;</code> and their character appears. No accounts, no forms, no friction — just chat.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3>Unique colour per viewer</h3>
+                <p>Hue-shift mode assigns every viewer a distinct colour so regulars are instantly recognisable on screen, stream after stream.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3>Chat bubbles, live</h3>
+                <p>Messages appear as bubbles above each pixie as they chat. The conversation is visible on stream without cluttering your layout.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚶</div>
+                <h3>Activity-driven</h3>
+                <p>Pixies stay on screen while viewers are active and walk off quietly when they go quiet. Your most engaged chatters are always represented.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚙️</div>
+                <h3>Fully configurable</h3>
+                <p>Scale, speed, max pixies, bubble timing, inactivity timeout — everything is adjustable from the Casterlabs widget settings panel.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌍</div>
+                <h3>Works with the translator</h3>
+                <p>International viewers get both — their message translated into your language and their character walking on screen. Included in every way.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA band -->
+    <div class="cta-band">
+        <h2>Ready to bring your chat <em>to life?</em></h2>
+        <p>ChatIncluded is free, open source, and runs inside Casterlabs Caffeinated. Pixies is included — no extra download.</p>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+            <a class="btn btn-primary" href="/#get-started">Get ChatIncluded — Free</a>
+            <a class="btn btn-secondary" href="https://github.com/KiraLovey/chatincluded">View on GitHub</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <span class="footer-logo">
+            <span class="logo-chat">Chat</span><span class="logo-inc">Included</span>
+        </span>
+        <p>Break the language barrier, live. Every viewer, on screen.</p>
+        <p>
+            <a href="/">Home</a>
+            <a href="https://github.com/KiraLovey/chatincluded">GitHub</a>
+            <a href="https://github.com/KiraLovey/chatincluded/issues">Report a Bug</a>
+            <a href="https://twitter.com/chatincluded">Twitter / X</a>
+            <a href="https://discord.gg/TkeDcaZQt6">Casterlabs Discord</a>
+            <a href="/policy.html">Code Signing Policy</a>
+        </p>
+        <p style="margin-top:1rem;">Made with care for multilingual streaming communities.</p>
+    </footer>
+
+    <script src="pixie-shared.js"></script>
+    <script>
+        // ── Live preview strip ──────────────────────────────────────────────
+        (function() {
+            var canvas = document.getElementById('preview-canvas');
+            var container = canvas.parentElement;
+
+            function resize() {
+                canvas.width  = container.clientWidth;
+                canvas.height = container.clientHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            var demoSettings = {
+                hueShift: true, showPlatformIcon: false, spriteScale: 2,
+                walkSpeedMin: 0.06, walkSpeedMax: 0.14, maxPixies: 40,
+                inactivityMs: 9999999, bubbleHideMs: 4000
+            };
+
+            var engine = new PixieEngine(canvas, demoSettings);
+            engine.start();
+
+            var DEMO_NAMES    = ['Kira_Lovey','StarDust99','NeonFoxxy','KickViewer','GhostChatter','RoboChan'];
+            var DEMO_MESSAGES = ['Hello everyone!', 'letsgoo!', 'PogChamp', 'gg', 'hi chat!', 'hype hype!'];
+
+            SPRITE_NAMES.forEach(function(type, i) {
+                setTimeout(function() {
+                    var uid = 'demo_' + type;
+                    engine.spritePrefs[uid] = type;
+                    engine.handleChatMessage({
+                        sender: { channelId: uid, displayname: DEMO_NAMES[i % DEMO_NAMES.length], platform: 'TWITCH' },
+                        fragments: [{ type: 'TEXT', raw: DEMO_MESSAGES[i % DEMO_MESSAGES.length] }]
+                    });
+                }, i * 600);
+            });
+
+            setInterval(function() {
+                var ids = Object.keys(engine.pixies);
+                if (!ids.length) return;
+                var uid = ids[Math.floor(Math.random() * ids.length)];
+                var p   = engine.pixies[uid];
+                engine.handleChatMessage({
+                    sender: { channelId: uid, displayname: p.displayName, platform: p.platform },
+                    fragments: [{ type: 'TEXT', raw: DEMO_MESSAGES[Math.floor(Math.random() * DEMO_MESSAGES.length)] }]
+                });
+            }, 3200);
+        })();
+
+        // ── Pixie library grid ──────────────────────────────────────────────
+        (function() {
+            var PALETTES = [
+                {l:'Pink',hue:320},{l:'Orange',hue:28},{l:'Yellow',hue:52},{l:'Lime',hue:100},
+                {l:'Teal',hue:185},{l:'Blue',hue:220},{l:'Purple',hue:270},{l:'Red',hue:0}
+            ];
+            var DEFAULT_HUE_ORDER = [320,28,185,100,220,270,52,0];
+            var grid = document.getElementById('pixie-grid');
+
+            SPRITE_NAMES.forEach(function(name, idx) {
+                var curHue = DEFAULT_HUE_ORDER[idx % DEFAULT_HUE_ORDER.length];
+
+                var card  = document.createElement('div');  card.className  = 'pixie-card';
+                var stage = document.createElement('div');  stage.className = 'pixie-stage';
+                var wrap  = document.createElement('div');  wrap.className  = 'pixie-wrap bob';
+                wrap.style.animationDelay = (idx * 0.37) + 's';
+
+                var cv = document.createElement('canvas');
+                cv.width = PX_W; cv.height = PX_H;
+                drawSpriteToCanvas(cv, name, curHue);
+
+                var aura = document.createElement('div'); aura.className = 'pixie-aura';
+                aura.style.cssText = 'width:' + Math.round(PX_W * .7) + 'px;height:11px;background:hsl(' + curHue + ',75%,60%);';
+
+                wrap.appendChild(cv); wrap.appendChild(aura);
+                stage.appendChild(wrap);
+
+                var title = document.createElement('div'); title.className = 'pixie-name'; title.textContent = name;
+
+                var cmd = document.createElement('div'); cmd.className = 'pixie-cmd';
+                cmd.textContent = '!pixie ' + name; cmd.title = 'Click to copy';
+                cmd.addEventListener('click', function() {
+                    navigator.clipboard.writeText('!pixie ' + name).then(function() {
+                        cmd.textContent = '✓ Copied!'; cmd.classList.add('copied');
+                        setTimeout(function() { cmd.textContent = '!pixie ' + name; cmd.classList.remove('copied'); }, 1600);
+                    });
+                });
+
+                var strip = document.createElement('div'); strip.className = 'hue-strip';
+                var activeDot = null;
+                PALETTES.forEach(function(p) {
+                    var dot = document.createElement('div');
+                    dot.className = 'hue-dot' + (p.hue === curHue ? ' active' : '');
+                    dot.style.background = 'hsl(' + p.hue + ',60%,58%)';
+                    dot.title = p.l;
+                    if (p.hue === curHue) activeDot = dot;
+                    dot.addEventListener('click', function() {
+                        if (activeDot) activeDot.classList.remove('active');
+                        dot.classList.add('active'); activeDot = dot; curHue = p.hue;
+                        aura.style.background = 'hsl(' + p.hue + ',75%,60%)';
+                        drawSpriteToCanvas(cv, name, p.hue);
+                    });
+                    strip.appendChild(dot);
+                });
+
+                card.appendChild(stage); card.appendChild(title);
+                card.appendChild(cmd);  card.appendChild(strip);
+                grid.appendChild(card);
+            });
+        })();
+    </script>
+</body>
+</html>
