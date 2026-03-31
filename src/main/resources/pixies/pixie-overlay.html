@@ -43,6 +43,7 @@ function readSettings() {
         walkSpeedMax:    Number(Widget.getSetting('movement.walkSpeedMax'))   || 0.07,
         maxPixies:       Number(Widget.getSetting('movement.maxPixies'))      || 40,
         inactivityMs:    Number(Widget.getSetting('timing.inactivityMs'))     || 90000,
+        customSprites:   Widget.getSetting('appearance.customSprites')        || '[]',
     };
 }
 
@@ -60,8 +61,8 @@ function initOverlay(settings) {
 
 // ── Caffeinated SDK path ──────────────────────────────────────────────────
 if (typeof Widget !== 'undefined') {
-    Widget.on('init', function() { initOverlay(readSettings()); });
-    Widget.on('update', function() { if (engine) engine.updateSettings(readSettings()); });
+    Widget.on('init', function() { var s = readSettings(); loadCustomSprites(s.customSprites); initOverlay(s); });
+    Widget.on('update', function() { var s = readSettings(); loadCustomSprites(s.customSprites); if (engine) engine.updateSettings(s); });
     Koi.on('RICH_MESSAGE', function(event) { if (engine) engine.handleChatMessage(event); });
 } else {
     // ── Demo / preview mode ───────────────────────────────────────────────

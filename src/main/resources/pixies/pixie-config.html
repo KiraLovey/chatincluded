@@ -226,10 +226,28 @@
     </div>
   </div>
 
+  <div class="card">
+    <div class="card-title">Custom Sprites</div>
+    <div id="custom-sprite-list"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap;">
+      <input type="text" id="cs-name" placeholder="Name (e.g. snake)" style="width:140px;flex-shrink:0;">
+      <input type="text" id="cs-url"  placeholder="Image URL (80×96 px transparent PNG)">
+      <button class="btn btn-ok" onclick="addCustomSprite()">Add</button>
+    </div>
+    <div style="color:var(--muted);font-size:11px;font-weight:700;margin-top:8px;">
+      Viewers use <span style="color:var(--accent2);font-family:monospace;">!pixie &lt;name&gt;</span> to select. Must be 80×96 px PNG with transparent background.
+    </div>
+  </div>
+
 </div>
 
 <script src="pixie-shared.js"></script>
 <script>
+// ── utilities ─────────────────────────────────────────────────────────────
+function escapeHtml(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 // ── tab switching ─────────────────────────────────────────────────────────
 document.querySelectorAll('.tab').forEach(function(t) {
     t.addEventListener('click', function() {
@@ -337,6 +355,9 @@ function renderActive(pixies) {
 
 // ── Widget integration ────────────────────────────────────────────────────
 Widget.on('init', function() {
+    try { _customSprites = JSON.parse(Widget.getSetting('appearance.customSprites') || '[]'); } catch(e) { _customSprites = []; }
+    loadCustomSprites(JSON.stringify(_customSprites));
+    renderCustomSpriteList();
     renderSpriteGrid();
     loadSettingsIntoUI();
 });
@@ -362,6 +383,52 @@ Koi.on('RICH_MESSAGE', function(event) {
     var text   = frags.filter(function(f){ return f.type==='TEXT'; }).map(function(f){ return f.raw||f.text||''; }).join('').trim();
     if (text) addAudit(sender.displayname || sender.username || '?', text);
 });
+
+// ── custom sprites ────────────────────────────────────────────────────────
+var _customSprites = [];
+
+function saveCustomSprites() {
+    Widget.setSetting('appearance.customSprites', JSON.stringify(_customSprites));
+    renderCustomSpriteList();
+    loadCustomSprites(JSON.stringify(_customSprites));
+    renderSpriteGrid();
+}
+
+function renderCustomSpriteList() {
+    var el = document.getElementById('custom-sprite-list');
+    if (!_customSprites.length) {
+        el.innerHTML = '<div class="empty-msg">No custom sprites yet.</div>';
+        return;
+    }
+    el.innerHTML = _customSprites.map(function(s, i) {
+        return '<div class="setting-row">'
+            + '<div class="setting-label" style="word-break:break-all;">'
+            + '<span style="color:var(--accent2);font-family:monospace;">!pixie ' + escapeHtml(s.name) + '</span>'
+            + ' <span class="setting-hint">' + escapeHtml(s.url) + '</span></div>'
+            + '<button class="btn btn-deny btn-small" onclick="removeCustomSprite(' + i + ')">Remove</button>'
+            + '</div>';
+    }).join('');
+}
+
+function addCustomSprite() {
+    var name = document.getElementById('cs-name').value.toLowerCase().trim();
+    var url  = document.getElementById('cs-url').value.trim();
+    if (!name || !url) return;
+    if (_customSprites.find(function(s){ return s.name === name; })) {
+        // update existing
+        _customSprites = _customSprites.map(function(s){ return s.name === name ? {name:name,url:url} : s; });
+    } else {
+        _customSprites.push({name:name, url:url});
+    }
+    document.getElementById('cs-name').value = '';
+    document.getElementById('cs-url').value  = '';
+    saveCustomSprites();
+}
+
+function removeCustomSprite(i) {
+    _customSprites.splice(i, 1);
+    saveCustomSprites();
+}
 
 function loadSettingsIntoUI() {
     var set = function(id, key, fallback) {

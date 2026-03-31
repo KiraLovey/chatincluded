@@ -636,14 +636,14 @@
                 <div class="step-number">2</div>
                 <div class="step-content">
                     <h3>Viewers pick their pixie</h3>
-                    <p>A viewer types <code>!pixie fairy</code> (or cat, dog, ghost, robot, H) in chat. Their character spawns on the overlay and starts walking. Share this page so they can browse and choose.</p>
+                    <p>A viewer types <code>!pixie fairy</code> (or cat, dog, ghost, axolotl, kitsune, robot) in chat. Their character spawns on the overlay and starts walking. Share this page so they can browse and choose.</p>
                 </div>
             </div>
             <div class="step">
                 <div class="step-number">3</div>
                 <div class="step-content">
                     <h3>Chat keeps them on screen</h3>
-                    <p>Every chat message appears as a bubble above their pixie. Stop chatting and they quietly walk off after the inactivity timeout — come back and they return. The most active chatters are always on screen.</p>
+                    <p>As long as a viewer keeps chatting, their pixie stays on screen. Go quiet and they walk off after the inactivity timeout — come back to chat and they return. The most active chatters are always represented.</p>
                 </div>
             </div>
         </div>
@@ -655,7 +655,7 @@
     <section id="pick-your-pixie">
         <p class="section-label">Pixie library</p>
         <h2 class="section-title">Pick your pixie, <em>type to join.</em></h2>
-        <p class="section-desc">Six characters, eight colour options each. Click a colour dot to preview, then click the command to copy it — just paste it in chat.</p>
+        <p class="section-desc">Seven characters, each with a full colour palette. Click a colour dot to preview, then click the command to copy it — just paste it in chat.</p>
         <div class="pixie-grid" id="pixie-grid"></div>
     </section>
 
@@ -679,9 +679,9 @@
                 <p>Hue-shift mode assigns every viewer a distinct colour so regulars are instantly recognisable on screen, stream after stream.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">💬</div>
-                <h3>Chat bubbles, live</h3>
-                <p>Messages appear as bubbles above each pixie as they chat. The conversation is visible on stream without cluttering your layout.</p>
+                <div class="feature-icon">🖼️</div>
+                <h3>Custom pixies</h3>
+                <p>Streamers can add their own characters — any 80×96px transparent PNG hosted publicly. Viewers unlock them instantly with <code>!pixie &lt;name&gt;</code>.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">🚶</div>
@@ -691,12 +691,52 @@
             <div class="feature-card">
                 <div class="feature-icon">⚙️</div>
                 <h3>Fully configurable</h3>
-                <p>Scale, speed, max pixies, bubble timing, inactivity timeout — everything is adjustable from the Casterlabs widget settings panel.</p>
+                <p>Scale, speed, max pixies on screen, inactivity timeout — everything is adjustable from the Casterlabs widget settings panel.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">🌍</div>
                 <h3>Works with the translator</h3>
                 <p>International viewers get both — their message translated into your language and their character walking on screen. Included in every way.</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- Custom pixie creation guide -->
+    <section id="custom-pixies">
+        <p class="section-label">Custom Pixies</p>
+        <h2 class="section-title">Create your own <em>pixie.</em></h2>
+        <p class="section-desc">Streamers can add fully custom characters — brand mascots, original art, community icons. Viewers pick them up with the same <code>!pixie</code> command.</p>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Design your sprite</h3>
+                    <p>Create an <strong>80 × 96 px</strong> PNG with a transparent background. Canva, Photoshop, Aseprite — any tool works. The image will be scaled up on stream, so crisp pixel art or clean flat illustration looks best. Keep important details inside the 80×96 bounds.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Host it publicly</h3>
+                    <p>Upload the PNG somewhere with a public, direct-link URL — your own website, GitHub raw, Discord CDN, or any image host. The URL must end in <code>.png</code> and be reachable without login. Test it by pasting the URL directly into a browser tab.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Add it in the widget settings</h3>
+                    <p>Open the <strong>ChatIncluded Pixies</strong> widget in Casterlabs, go to <strong>Settings → Custom Sprites</strong>, enter a name (e.g. <code>snake</code>) and paste the URL. Hit <strong>Add</strong> — the sprite loads immediately with no restart needed.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Viewers use it in chat</h3>
+                    <p>Any viewer can now type <code>!pixie snake</code> (or whatever name you chose) and your custom character appears on screen. Share the name in your channel panels or stream so chat knows it exists.</p>
+                </div>
             </div>
         </div>
     </section>
@@ -745,7 +785,7 @@
             var demoSettings = {
                 hueShift: true, showPlatformIcon: false, spriteScale: 2,
                 walkSpeedMin: 0.06, walkSpeedMax: 0.14, maxPixies: 40,
-                inactivityMs: 9999999, bubbleHideMs: 4000
+                inactivityMs: 9999999
             };
 
             var engine = new PixieEngine(canvas, demoSettings);
