@@ -6,6 +6,11 @@ on:
   release:
     types: [published, edited]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to attach installer to (e.g. v1.1.0)'
+        required: true
+        default: 'v1.1.0'
 
 jobs:
   build:
@@ -65,4 +70,5 @@ jobs:
       - name: Upload installer to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
           files: ChatIncluded-Setup.exe
