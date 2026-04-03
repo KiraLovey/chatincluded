@@ -5,6 +5,7 @@ on:
     branches: [main]
   release:
     types: [published, edited]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -51,7 +52,7 @@ jobs:
     name: Publish release
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'release' && (github.event.action == 'published' || github.event.action == 'edited')
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     permissions:
       contents: write
 
