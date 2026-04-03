@@ -47,42 +47,19 @@ jobs:
           path: ChatIncluded-Setup.exe
           retention-days: 7
 
-  sign-and-release:
-    name: Sign & publish
+  publish:
+    name: Publish release
     needs: build
     runs-on: ubuntu-latest
-    # Only runs on a published GitHub Release (tag push)
     if: github.event_name == 'release'
 
     steps:
-      - name: Download unsigned installer
+      - name: Download installer
         uses: actions/download-artifact@v4
         with:
           name: ChatIncluded-Setup-unsigned
 
-      # ----------------------------------------------------------------
-      # SignPath code signing
-      # Requires these repository secrets (Settings → Secrets → Actions):
-      #   SIGNPATH_API_TOKEN        — generated in SignPath under your org
-      #   SIGNPATH_ORGANIZATION_ID  — shown in SignPath org settings
-      # And these values filled in below once your project is approved:
-      #   project-slug              — set when you create the project in SignPath
-      #   signing-policy-slug       — e.g. "release-signing"
-      #   artifact-configuration-slug — e.g. "chatincluded-setup"
-      # ----------------------------------------------------------------
-      - name: Submit signing request to SignPath
-        uses: signpath/github-action-submit-signing-request@v1
-        with:
-          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: chatincluded
-          signing-policy-slug: release-signing
-          artifact-configuration-slug: chatincluded-setup
-          github-artifact-id: ChatIncluded-Setup-unsigned
-          wait-for-completion: true
-          output-artifact-directory: signed
-
-      - name: Upload signed installer to GitHub Release
+      - name: Upload installer to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: signed/ChatIncluded-Setup.exe
+          files: ChatIncluded-Setup.exe
