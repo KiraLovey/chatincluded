@@ -646,6 +646,13 @@
                     <p>As long as a viewer keeps chatting, their pixie stays on screen. Go quiet and they walk off after the inactivity timeout — come back to chat and they return. The most active chatters are always represented.</p>
                 </div>
             </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Share the full list with chat</h3>
+                    <p>In the <strong>ChatIncluded Pixies Config</strong> applet, open the <strong>Pixie Library</strong> tab and hit <strong>Download image</strong> — you'll get a PNG of every available pixie. Host it anywhere (your own site, <a href="https://www.imageurlgenerator.com/image-to-url" target="_blank" rel="noopener">imageurlgenerator.com</a>, Imgur) and add a <code>!pixies</code> command in Nightbot, StreamElements, or whichever chatbot you use. Viewers can run it any time to see every option.</p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -837,6 +844,11 @@
                 var cv = document.createElement('canvas');
                 cv.width = PX_W; cv.height = PX_H;
                 drawSpriteToCanvas(cv, name, curHue);
+                // Re-draw once the image finishes loading (async)
+                var _img = SPRITE_IMAGES[name];
+                if (_img && !_img.complete) {
+                    _img.addEventListener('load', function() { drawSpriteToCanvas(cv, name, curHue); });
+                }
 
                 var aura = document.createElement('div'); aura.className = 'pixie-aura';
                 aura.style.cssText = 'width:' + Math.round(PX_W * .7) + 'px;height:11px;background:hsl(' + curHue + ',75%,60%);';

@@ -135,8 +135,9 @@ PixieEngine.prototype._tick = function(ts) {
 
 PixieEngine.prototype._resize = function() {
     var c = this.canvas;
-    var W = window.innerWidth  || document.documentElement.clientWidth  || c.clientWidth;
-    var H = window.innerHeight || document.documentElement.clientHeight || c.clientHeight;
+    var p = c.parentElement;
+    var W = (p ? p.clientWidth  : 0) || window.innerWidth;
+    var H = (p ? p.clientHeight : 0) || window.innerHeight;
     if (W > 0 && H > 0 && (c.width !== W || c.height !== H)) {
         c.width  = W;
         c.height = H;
