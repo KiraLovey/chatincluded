@@ -30,7 +30,7 @@ jobs:
         shell: pwsh
 
       - name: Copy JAR to installer directory
-        run: Copy-Item target\chatincluded-1.0.0.jar chatincluded-1.0.0.jar -Force
+        run: Copy-Item target\chatincluded-1.1.0.jar chatincluded-1.1.0.jar -Force
         shell: pwsh
 
       - name: Install NSIS and build installer
