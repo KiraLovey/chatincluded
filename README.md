@@ -76,7 +76,7 @@ ChatIncluded runs as a plugin inside Casterlabs. If you don't have it yet:
 3. Follow the prompts — the script installs into `~/.local/share/casterlabs-caffeinated/plugins` by default
 4. Open (or restart) Casterlabs when the script finishes
 
-> **Manual install (any platform):** If you prefer, just copy `chatincluded-1.0.0.jar` directly into your Casterlabs plugins folder. In Casterlabs: Settings → Plugins → Open Plugins Folder.
+> **Manual install (any platform):** If you prefer, just copy `chatincluded-1.1.0.jar` directly into your Casterlabs plugins folder. In Casterlabs: Settings → Plugins → Open Plugins Folder.
 
 ### Step 4 — Configure the Plugin
 
@@ -102,8 +102,8 @@ When a new version is available, ChatIncluded will notify you in the Casterlabs 
 ```
 
 To update, download and run the latest installer for your platform:
-- **Windows** — [ChatIncluded-Setup.exe](https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-Setup.exe)
-- **macOS / Linux** — download the new `chatincluded-1.0.0.jar` and re-run `install.sh`, or copy the JAR directly into your plugins folder
+- **Windows** — [ChatIncluded-Setup.exe](https://github.com/KiraLovey/chatincluded/releases/latest/download/ChatIncluded-Setup.exe)
+- **macOS / Linux** — download the new `chatincluded-1.1.0.jar` and re-run `install.sh`, or copy the JAR directly into your plugins folder
 
 The installer overwrites the existing plugin file automatically. Your settings are preserved.
 
