@@ -41,6 +41,17 @@ public class ChatIncludedPlugin extends CaffeinatedPlugin {
                 PixiesWidget.class
         );
 
+        this.getPlugins().registerWidget(
+                this,
+                new WidgetDetails()
+                        .withNamespace("com.kiralovey.chatincluded.pixies.config")
+                        .withIcon("auto_fix_high")
+                        .withCategory(WidgetDetailsCategory.OTHER)
+                        .withFriendlyName("ChatIncluded Pixies Config")
+                        .withType(WidgetType.APPLET),
+                PixiesConfigWidget.class
+        );
+
         // Clean API call using the public Caffeinated interface from the SDK
         Koi koi = Caffeinated.getInstance().getKoi();
 

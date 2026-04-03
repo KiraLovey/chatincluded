@@ -6,11 +6,18 @@ import co.casterlabs.caffeinated.pluginsdk.widgets.WidgetInstanceMode;
 import co.casterlabs.caffeinated.pluginsdk.widgets.settings.WidgetSettingsItem;
 import co.casterlabs.caffeinated.pluginsdk.widgets.settings.WidgetSettingsLayout;
 import co.casterlabs.caffeinated.pluginsdk.widgets.settings.WidgetSettingsSection;
+import co.casterlabs.rakurai.json.element.JsonElement;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class PixiesWidget extends Widget {
 
+    static final List<PixiesWidget> instances = new CopyOnWriteArrayList<>();
+
     @Override
     public void onInit() {
+        instances.add(this);
         this.setSettingsLayout(buildLayout());
     }
 
@@ -18,17 +25,30 @@ public class PixiesWidget extends Widget {
     public void onNameUpdate() {}
 
     @Override
-    public void onNewInstance(WidgetInstance instance) {}
+    public void onNewInstance(WidgetInstance instance) {
+        // Forward viewer sprite requests to all config panel instances
+        instance.on("pixie_request", (JsonElement data) -> {
+            for (PixiesConfigWidget cfg : PixiesConfigWidget.instances) {
+                try { cfg.broadcastToAll("pixie_request", data); } catch (Exception ignored) {}
+            }
+        });
+        // Forward active pixie state to config panel
+        instance.on("pixie_state", (JsonElement data) -> {
+            for (PixiesConfigWidget cfg : PixiesConfigWidget.instances) {
+                try { cfg.broadcastToAll("pixie_state", data); } catch (Exception ignored) {}
+            }
+        });
+        // Forward streamer account detection to config panel
+        instance.on("streamer_detected", (JsonElement data) -> {
+            for (PixiesConfigWidget cfg : PixiesConfigWidget.instances) {
+                try { cfg.broadcastToAll("streamer_detected", data); } catch (Exception ignored) {}
+            }
+        });
+    }
 
     @Override
     public String getWidgetBasePath(WidgetInstanceMode mode) {
-        switch (mode) {
-            case DOCK:
-            case APPLET:
-                return "/pixies/pixie-config.html";
-            default:
-                return "/pixies/pixie-overlay.html";
-        }
+        return "/pixies/pixie-overlay.html";
     }
 
     private WidgetSettingsLayout buildLayout() {
@@ -37,7 +57,7 @@ public class PixiesWidget extends Widget {
                         "Randomise pixie colour (hue-shift per viewer)", true))
                 .addItem(WidgetSettingsItem.asCheckbox("showPlatformIcon",
                         "Show platform icon badge on pixie", false))
-                .addItem(WidgetSettingsItem.asRange("spriteScale",
+                .addItem(WidgetSettingsItem.asRange("pixieScale",
                         "Pixie scale (1 = tiny, 6 = huge)", 3, 1, 1, 6));
 
         WidgetSettingsSection movement = new WidgetSettingsSection("movement", "Movement")

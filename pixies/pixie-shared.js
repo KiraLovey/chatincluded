@@ -56,7 +56,7 @@ const SPRITES = {
     dog:     _imgSprite('dog',      30),
     ghost:   _imgSprite('ghost',   245),
 
-robot: { draw(ctx, hue) {
+    robot: { draw(ctx, hue) {
         const mL = h(hue,28,72), mM = h(hue,28,58), mD = h(hue,28,42), sc = '#00ffee', bo = '#ffd700', eG = h((hue+160)%360,90,62);
         // antenna
         ctx.save(); ctx.strokeStyle=mD; ctx.lineWidth=3; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(40,7); ctx.lineTo(40,17); ctx.stroke(); ci(ctx,40,6,5.5); ctx.fillStyle=lg(ctx,35,2,45,10,bo,h(40,90,55)); sh(ctx,ha(40,90,55,.7),8); ctx.fill(); ns(ctx); ctx.restore();
@@ -106,6 +106,7 @@ function PixieEngine(canvas, settings) {
     this._running = false;
     this._lastTs  = 0;
     this._boundTick = this._tick.bind(this);
+    this.customRequestCallback = null;  // fn(userId, displayName, url) — set by overlay
 }
 
 PixieEngine.prototype.start = function() {
@@ -307,6 +308,21 @@ PixieEngine.prototype._drawPlatformBadge = function(ctx, x, y, platform, scale) 
     ctx.restore();
 };
 
+PixieEngine.prototype.applyCustomSprite = function(userId, url) {
+    var key = 'custom_' + userId;
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img._customUrl = url;
+    img.src = url;
+    SPRITE_IMAGES[key] = img;
+    if (!SPRITES[key]) {
+        SPRITES[key] = _imgSprite(key, 0);
+        SPRITE_DEFAULT_HUES[key] = 0;
+    }
+    this.spritePrefs[userId] = key;
+    if (this.pixies[userId]) this.pixies[userId].spriteType = key;
+};
+
 PixieEngine.prototype.handleChatMessage = function(event) {
     var s = this.settings;
     var sender = event.sender || {};
@@ -315,11 +331,24 @@ PixieEngine.prototype.handleChatMessage = function(event) {
 
     var text = this._extractText(event);
 
-    // !sprite command
-    var m = text.match(/^!pixie\s+(\w+)/i);
+    // !pixie custom <url> or !sprite custom <url>
+    var mCustom = text.match(/^!(?:pixie|sprite)\s+custom\s+(https?:\/\/\S+)/i);
+    if (mCustom) {
+        var url = mCustom[1];
+        var streamerUserId = s.streamerUserId;
+        if (streamerUserId && userId === streamerUserId) {
+            this.applyCustomSprite(userId, url);
+        } else if (this.customRequestCallback) {
+            var displayName = sender.displayname || sender.username || userId;
+            this.customRequestCallback(userId, displayName, url);
+        }
+        return;
+    }
+
+    // !pixie <name> or !sprite <name>
+    var m = text.match(/^!(?:pixie|sprite)\s+(\w+)/i);
     if (m) {
         var requested = m[1].toLowerCase();
-        // Handle 'H' case-insensitively
         var found = SPRITE_NAMES.find(function(n){ return n.toLowerCase() === requested; });
         if (found) {
             this.spritePrefs[userId] = found;

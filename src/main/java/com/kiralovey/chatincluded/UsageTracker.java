@@ -43,6 +43,7 @@ public class UsageTracker {
     private final AtomicInteger filteredSameLanguage = new AtomicInteger(0);
     private final AtomicInteger filteredDeduplicated = new AtomicInteger(0);
     private final AtomicInteger filteredBotExcluded  = new AtomicInteger(0);
+    private final AtomicInteger filteredRepeatedChars = new AtomicInteger(0);
 
     // DeepL quota fields (from /v2/usage API)
     private volatile long deeplCharacterCount = -1;
@@ -84,7 +85,8 @@ public class UsageTracker {
             case EMOTE_ONLY:     filteredEmoteOnly.incrementAndGet();    break;
             case SAME_LANGUAGE:  filteredSameLanguage.incrementAndGet(); break;
             case DEDUPLICATED:   filteredDeduplicated.incrementAndGet(); break;
-            case BOT_EXCLUDED:   filteredBotExcluded.incrementAndGet();  break;
+            case BOT_EXCLUDED:    filteredBotExcluded.incrementAndGet();   break;
+            case REPEATED_CHARS:  filteredRepeatedChars.incrementAndGet(); break;
         }
     }
 
@@ -127,7 +129,8 @@ public class UsageTracker {
     public int  getFilteredEmoteOnly()     { return filteredEmoteOnly.get(); }
     public int  getFilteredSameLanguage()  { return filteredSameLanguage.get(); }
     public int  getFilteredDeduplicated()  { return filteredDeduplicated.get(); }
-    public int  getFilteredBotExcluded()   { return filteredBotExcluded.get(); }
+    public int  getFilteredBotExcluded()    { return filteredBotExcluded.get(); }
+    public int  getFilteredRepeatedChars() { return filteredRepeatedChars.get(); }
     public long getDeeplCharacterCount()   { return deeplCharacterCount; }
     public long getDeeplCharacterLimit()   { return deeplCharacterLimit; }
 

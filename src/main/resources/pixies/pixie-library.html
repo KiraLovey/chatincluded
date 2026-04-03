@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>ChatIncluded Pixies — Sprite Library</title>
+  <title>ChatIncluded Pixies — Pixie Library</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -76,20 +76,20 @@
       color:var(--slate-mist);
     }
 
-    /* ── sprite grid ── */
+    /* ── pixie grid ── */
     .grid {
       display:grid;
       grid-template-columns:repeat(auto-fill,minmax(185px,1fr));
       gap:16px; max-width:860px; margin:0 auto;
     }
-    .sprite-card {
+    .pixie-card {
       background:var(--slate-mid);
       border:1px solid var(--slate-light);
       border-radius:14px; padding:22px 18px 18px;
       display:flex; flex-direction:column; align-items:center; gap:10px;
       transition:border-color .2s, box-shadow .2s;
     }
-    .sprite-card:hover {
+    .pixie-card:hover {
       border-color:var(--sun-warm);
       box-shadow:0 0 0 3px rgba(245,200,66,.1);
     }
@@ -156,7 +156,7 @@
 
 <header>
   <div class="wordmark">ChatIncluded — Pixies</div>
-  <h1>Pick your <em>sprite.</em></h1>
+  <h1>Pick your <em>pixie.</em></h1>
   <p>Type a command in chat and your pixie will walk across the stream overlay. Click a colour dot to preview recolours, then click the command to copy it.</p>
 </header>
 
@@ -165,12 +165,12 @@
   <div class="how-to-text">
     Type <strong>!pixie &lt;name&gt;</strong> in chat during the stream.
     Your pixie spawns on the overlay and walks around — chat messages appear as bubbles above it.
-    You can change your sprite any time by typing the command again.
+    You can change your pixie any time by typing the command again.
   </div>
 </div>
 
 <div class="divider"></div>
-<div class="section-label">Available sprites</div>
+<div class="section-label">Available pixies</div>
 <div class="grid" id="grid"></div>
 
 <footer>
@@ -187,11 +187,11 @@ var PALETTES = [
 var DEFAULT_HUE_ORDER = [320,28,185,100,220,270,52,0];
 var grid = document.getElementById('grid');
 
-SPRITE_NAMES.forEach(function(name, idx) {
+PIXIE_NAMES.forEach(function(name, idx) {
     var curHue = DEFAULT_HUE_ORDER[idx % DEFAULT_HUE_ORDER.length];
 
     var card = document.createElement('div');
-    card.className = 'sprite-card';
+    card.className = 'pixie-card';
 
     // stage + bob wrapper
     var stage = document.createElement('div'); stage.className = 'stage';
@@ -199,7 +199,7 @@ SPRITE_NAMES.forEach(function(name, idx) {
     wrap.style.animationDelay = (idx * 0.37) + 's';
 
     var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
-    drawSpriteToCanvas(cv, name, curHue);
+    drawPixieToCanvas(cv, name, curHue);
 
     var aura = document.createElement('div'); aura.className = 'aura';
     aura.style.cssText = 'width:' + Math.round(W * .7) + 'px;height:11px;background:hsl(' + curHue + ',75%,60%);';
@@ -243,7 +243,7 @@ SPRITE_NAMES.forEach(function(name, idx) {
             dot.classList.add('active'); activeDot = dot;
             curHue = p.hue;
             aura.style.background = 'hsl(' + p.hue + ',75%,60%)';
-            drawSpriteToCanvas(cv, name, p.hue);
+            drawPixieToCanvas(cv, name, p.hue);
         });
         strip.appendChild(dot);
     });

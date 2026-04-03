@@ -38,12 +38,13 @@ function readSettings() {
     return {
         hueShift:        Widget.getSetting('appearance.hueShift') !== false,
         showPlatformIcon:!!Widget.getSetting('appearance.showPlatformIcon'),
-        spriteScale:     Number(Widget.getSetting('appearance.spriteScale'))  || 3,
+        pixieScale:     Number(Widget.getSetting('appearance.pixieScale'))  || 3,
         walkSpeedMin:    Number(Widget.getSetting('movement.walkSpeedMin'))   || 0.03,
         walkSpeedMax:    Number(Widget.getSetting('movement.walkSpeedMax'))   || 0.07,
         maxPixies:       Number(Widget.getSetting('movement.maxPixies'))      || 40,
         inactivityMs:    Number(Widget.getSetting('timing.inactivityMs'))     || 90000,
-        customSprites:   Widget.getSetting('appearance.customSprites')        || '[]',
+        customPixies:    (function(){ var v = null; try { v = Widget.getSetting('appearance.customPixies'); } catch(e) {} if (!v) { try { v = localStorage.getItem('ci_customPixies'); } catch(e) {} } return v || '[]'; })(),
+        streamerUserId:  Widget.getSetting('streamer.userId')                 || '',
     };
 }
 
@@ -61,9 +62,56 @@ function initOverlay(settings) {
 
 // ── Caffeinated SDK path ──────────────────────────────────────────────────
 if (typeof Widget !== 'undefined') {
-    Widget.on('init', function() { var s = readSettings(); loadCustomSprites(s.customSprites); initOverlay(s); });
-    Widget.on('update', function() { var s = readSettings(); loadCustomSprites(s.customSprites); if (engine) engine.updateSettings(s); });
+    Widget.on('init', function() {
+        // Detect streamer from Koi user state and persist it
+        var state = Koi.userStates && Koi.userStates['KoiChatter.CLIENT'];
+        var streamerId = state && (state.channelId || state.upid || state.id);
+        if (streamerId) {
+            Widget.setSetting('streamer.userId', streamerId);
+            Widget.emit('streamer_detected', { userId: streamerId });
+        }
+        var s = readSettings();
+        loadCustomPixies(s.customPixies);
+        initOverlay(s);
+        engine.customRequestCallback = function(userId, displayName, url) {
+            Widget.emit('pixie_request', { userId: userId, username: displayName, url: url });
+        };
+    });
+    Widget.on('update', function() {
+        var s = readSettings();
+        loadCustomPixies(s.customPixies);
+        if (engine) engine.updateSettings(s);
+    });
+    Widget.on('pixie_approved', function(data) {
+        if (!engine || !data) return;
+        if (data.url) {
+            engine.applyCustomPixie(data.userId, data.url);
+        } else if (data.pixie) {
+            engine.pixiePrefs[data.userId] = data.pixie;
+            if (engine.pixies[data.userId]) engine.pixies[data.userId].pixieType = data.pixie;
+        }
+    });
+    Widget.on('pixie_remove', function(data) {
+        if (!engine || !data || !data.userId) return;
+        delete engine.pixies[data.userId];
+    });
+    Widget.on('customPixies_update', function(data) {
+        // Java bridge may deserialize the JSON string into an array — handle both
+        var json = typeof data === 'string' ? data : JSON.stringify(data || []);
+        loadCustomPixies(json);
+        try { localStorage.setItem('ci_customPixies', json); } catch(e) {}
+        try { Widget.setSetting('appearance.customPixies', json); } catch(e) {}
+    });
     Koi.on('RICH_MESSAGE', function(event) { if (engine) engine.handleChatMessage(event); });
+    // Broadcast active pixie state to config panel every 2 seconds
+    setInterval(function() {
+        if (!engine) return;
+        var active = Object.keys(engine.pixies).map(function(uid) {
+            var p = engine.pixies[uid];
+            return { userId: uid, displayName: p.displayName, pixieType: p.pixieType, platform: p.platform };
+        });
+        try { Widget.emit('pixie_state', { pixies: active }); } catch(e) {}
+    }, 2000);
 } else {
     // ── Demo / preview mode ───────────────────────────────────────────────
     document.body.classList.add('demo-mode');
@@ -73,18 +121,18 @@ if (typeof Widget !== 'undefined') {
     document.body.appendChild(lbl);
 
     var DEMO_NAMES    = ['Kira_Lovey','StarDust99','NeonFoxxy','KickViewer','GhostChatter','RoboChan'];
-    var DEMO_MESSAGES = ['Hello chat!','PogChamp','Let\'s gooo!','gg wp','!sprite cat','Hype hype hype'];
-    var demoSettings  = { hueShift:true, showPlatformIcon:false, spriteScale:3,
+    var DEMO_MESSAGES = ['Hello chat!','PogChamp','Let\'s gooo!','gg wp','!pixie cat','Hype hype hype'];
+    var demoSettings  = { hueShift:true, showPlatformIcon:false, pixieScale:3,
                           walkSpeedMin:0.03, walkSpeedMax:0.07, maxPixies:40,
                           inactivityMs:900000 };
 
     initOverlay(demoSettings);
 
-    // spawn one demo pixie per sprite type, staggered
-    SPRITE_NAMES.forEach(function(type, i) {
+    // spawn one demo pixie per pixie type, staggered
+    PIXIE_NAMES.forEach(function(type, i) {
         setTimeout(function() {
             var uid = 'demo_' + type;
-            engine.spritePrefs[uid] = type;
+            engine.pixiePrefs[uid] = type;
             engine.handleChatMessage({
                 sender: { channelId: uid, displayname: DEMO_NAMES[i % DEMO_NAMES.length], platform: 'TWITCH' },
                 fragments: [{ type:'TEXT', raw: DEMO_MESSAGES[i % DEMO_MESSAGES.length] }]

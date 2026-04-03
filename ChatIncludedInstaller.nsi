@@ -30,11 +30,11 @@ BrandingText " "
 ;--------------------------------
 ; Version info
 
-VIProductVersion "1.0.0.0"
+VIProductVersion "1.1.0.0"
 VIAddVersionKey "ProductName"     "ChatIncluded"
-VIAddVersionKey "ProductVersion"  "1.0.0"
+VIAddVersionKey "ProductVersion"  "1.1.0"
 VIAddVersionKey "FileDescription" "ChatIncluded Installer"
-VIAddVersionKey "FileVersion"     "1.0.0"
+VIAddVersionKey "FileVersion"     "1.1.0"
 VIAddVersionKey "LegalCopyright"  "KiraLovey"
 
 ;--------------------------------
@@ -115,7 +115,7 @@ Function WelcomePage
     CreateFont $1 "Segoe UI" 10 400
     SendMessage $WelcomeTagline ${WM_SETFONT} $1 0
 
-    ${NSD_CreateLabel} 0 48u 100% 10u "Version 1.0.0 Beta"
+    ${NSD_CreateLabel} 0 48u 100% 10u "Version 1.1.0 Beta"
     Pop $0
     SetCtlColors $0 "666666" "0A0A0F"
     CreateFont $1 "Segoe UI" 9 400
@@ -320,10 +320,22 @@ FunctionEnd
 Section "Install"
     StrCpy $InstallSucceeded "0"
 
+    ; Remove any previously installed version of the plugin (handles version renames)
+    FindFirst $1 $2 "$PluginsPath\chatincluded-*.jar"
+    cleanup_old_loop:
+        ${If} $2 == ""
+            Goto cleanup_old_done
+        ${EndIf}
+        Delete "$PluginsPath\$2"
+        FindNext $1 $2
+        Goto cleanup_old_loop
+    cleanup_old_done:
+    FindClose $1
+
     ; Install the plugin JAR into the user-confirmed folder
     SetOutPath "$PluginsPath"
     ClearErrors
-    File "chatincluded-1.0.0.jar"
+    File "chatincluded-1.1.0.jar"
     IfErrors install_file_failed
 
     StrCpy $InstallSucceeded "1"
@@ -346,7 +358,7 @@ Section "Install"
     WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\ChatIncluded" \
         "UninstallString" '"$LOCALAPPDATA\ChatIncluded\Uninstall.exe"'
     WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\ChatIncluded" \
-        "DisplayVersion" "1.0.0"
+        "DisplayVersion" "1.1.0"
     WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\ChatIncluded" \
         "Publisher" "KiraLovey"
     WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\ChatIncluded" \
@@ -377,8 +389,17 @@ Section "Uninstall"
         StrCpy $0 "$APPDATA\casterlabs-caffeinated\plugins"
     ${EndIf}
 
-    ; Remove the plugin JAR
-    Delete "$0\chatincluded-1.0.0.jar"
+    ; Remove any version of the plugin JAR
+    FindFirst $1 $2 "$0\chatincluded-*.jar"
+    uninstall_jar_loop:
+        ${If} $2 == ""
+            Goto uninstall_jar_done
+        ${EndIf}
+        Delete "$0\$2"
+        FindNext $1 $2
+        Goto uninstall_jar_loop
+    uninstall_jar_done:
+    FindClose $1
 
     ; Remove the uninstaller and its directory
     Delete "$LOCALAPPDATA\ChatIncluded\Uninstall.exe"

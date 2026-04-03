@@ -124,6 +124,8 @@ public class ChatIncludedWidget extends Widget {
                     "\u21b3 Same language", "0", "0"));
             stats.addItem(WidgetSettingsItem.asText("statsFilterDedup",
                     "\u21b3 Deduplicated", "0", "0"));
+            stats.addItem(WidgetSettingsItem.asText("statsFilterRepeat",
+                    "\u21b3 Repeated chars", "0", "0"));
             return stats;
         }
 
@@ -140,6 +142,7 @@ public class ChatIncludedWidget extends Widget {
         int  fEmote     = tracker.getFilteredEmoteOnly();
         int  fSameLang  = tracker.getFilteredSameLanguage();
         int  fDedup     = tracker.getFilteredDeduplicated();
+        int  fRepeat    = tracker.getFilteredRepeatedChars();
 
         if (isPro) {
             // Pro plan — show cost estimates
@@ -248,6 +251,10 @@ public class ChatIncludedWidget extends Widget {
                 "\u21b3 Same language", fSameLangVal, fSameLangVal));
         stats.addItem(WidgetSettingsItem.asText("statsFilterDedup",
                 "\u21b3 Deduplicated", fDedupVal, fDedupVal));
+
+        String fRepeatVal = nf.format(fRepeat);
+        stats.addItem(WidgetSettingsItem.asText("statsFilterRepeat",
+                "\u21b3 Repeated chars", fRepeatVal, fRepeatVal));
 
         return stats;
     }
