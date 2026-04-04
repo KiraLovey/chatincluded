@@ -21,6 +21,29 @@ public class PixiesConfigWidget extends Widget {
 
     static final List<PixiesConfigWidget> instances = new CopyOnWriteArrayList<>();
 
+    // File-based backup persistence
+    private static final Path DATA_DIR = Paths.get(System.getProperty("user.home"), ".chatincluded");
+
+    private static String readFile(String filename) {
+        try {
+            Path p = DATA_DIR.resolve(filename);
+            if (Files.exists(p)) return Files.readString(p);
+        } catch (Exception ignored) {}
+        return "[]";
+    }
+
+    private static void writeFile(String filename, String content) {
+        try {
+            Files.createDirectories(DATA_DIR);
+            Files.writeString(DATA_DIR.resolve(filename), content);
+        } catch (Exception ignored) {}
+    }
+
+    private static String toJsonStr(JsonElement data) {
+        if (data == null) return "[]";
+        return data.isJsonString() ? data.getAsString() : data.toString();
+    }
+
     // Chunked export assembly state
     private volatile StringBuilder _exportBuf   = null;
     private volatile int           _exportTotal = 0;
@@ -42,6 +65,19 @@ public class PixiesConfigWidget extends Widget {
 
     @Override
     public void onNewInstance(WidgetInstance instance) {
+        // JS requests saved data on init — respond via broadcastToAll
+        instance.on("requestPixieData", (JsonElement ignored) -> {
+            // Read from Java-side settings (primary), fall back to file
+            String cp = this.settings().getString("appearance.customPixies", "[]");
+            if (cp == null || cp.isEmpty() || cp.equals("[]")) cp = readFile("custom-pixies.json");
+
+            String dp = this.settings().getString("appearance.disabledPixies", "[]");
+            if (dp == null || dp.isEmpty() || dp.equals("[]")) dp = readFile("disabled-pixies.json");
+
+            try { this.broadcastToAll("customPixies_fileData",  new JsonString(cp));  } catch (Exception e) {}
+            try { this.broadcastToAll("disabledPixies_fileData", new JsonString(dp)); } catch (Exception e) {}
+        });
+
         // Forward approvals and removals to all overlay instances
         instance.on("pixie_approved", (JsonElement data) -> {
             for (PixiesWidget w : PixiesWidget.instances) {
@@ -53,7 +89,8 @@ public class PixiesConfigWidget extends Widget {
                 try { w.broadcastToAll("pixie_remove", data); } catch (Exception ignored) {}
             }
         });
-        // Chunked export: JS sends 25 KB slices; Java assembles and writes to Downloads
+
+        // Chunked export
         instance.on("export_chunk", (JsonElement data) -> {
             try {
                 var obj   = data.getAsObject();
@@ -88,10 +125,23 @@ public class PixiesConfigWidget extends Widget {
             }
         });
 
-        // Forward custom sprite updates to overlay so it reloads + persists
+        // Custom pixie updates: save via Java settings + file, then forward to overlay
         instance.on("customPixies_update", (JsonElement data) -> {
+            String json = toJsonStr(data);
+            try { this.settings().set("appearance.customPixies", json); } catch (Exception ignored) {}
+            writeFile("custom-pixies.json", json);
             for (PixiesWidget w : PixiesWidget.instances) {
                 try { w.broadcastToAll("customPixies_update", data); } catch (Exception ignored) {}
+            }
+        });
+
+        // Disabled pixie updates: save via Java settings + file, then forward to overlay
+        instance.on("disabledPixies_update", (JsonElement data) -> {
+            String json = toJsonStr(data);
+            try { this.settings().set("appearance.disabledPixies", json); } catch (Exception ignored) {}
+            writeFile("disabled-pixies.json", json);
+            for (PixiesWidget w : PixiesWidget.instances) {
+                try { w.broadcastToAll("disabledPixies_update", data); } catch (Exception ignored) {}
             }
         });
     }

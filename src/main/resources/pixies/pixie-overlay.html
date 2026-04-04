@@ -38,6 +38,7 @@ var _disabledPixies = [];
 function _loadDisabledPixies() {
     var raw = null;
     try { raw = Widget.getSetting('appearance.disabledPixies'); } catch(e) {}
+    if (raw && typeof raw !== 'string') raw = JSON.stringify(raw);
     if (!raw) { try { raw = localStorage.getItem('ci_disabledPixies'); } catch(e) {} }
     try { _disabledPixies = JSON.parse(raw || '[]'); } catch(e) { _disabledPixies = []; }
     if (engine) engine.disabledPixies = _disabledPixies;
@@ -52,7 +53,7 @@ function readSettings() {
         walkSpeedMax:    Number(Widget.getSetting('movement.walkSpeedMax'))   || 0.07,
         maxPixies:       Number(Widget.getSetting('movement.maxPixies'))      || 40,
         inactivityMs:    Number(Widget.getSetting('timing.inactivityMs'))     || 90000,
-        customPixies:    (function(){ var v = null; try { v = Widget.getSetting('appearance.customPixies'); } catch(e) {} if (!v || v === '[]') { try { v = localStorage.getItem('ci_customPixies'); } catch(e) {} } return v || '[]'; })(),
+        customPixies:    (function(){ var v = null; try { v = Widget.getSetting('appearance.customPixies'); } catch(e) {} if (v && typeof v !== 'string') v = JSON.stringify(v); if (!v || v === '[]') { try { v = localStorage.getItem('ci_customPixies'); } catch(e) {} } return v || '[]'; })(),
         streamerUserId:  Widget.getSetting('streamer.userId')                 || '',
     };
 }
@@ -86,6 +87,8 @@ if (typeof Widget !== 'undefined') {
         engine.customRequestCallback = function(userId, displayName, url) {
             Widget.emit('pixie_request', { userId: userId, username: displayName, url: url });
         };
+        // Request file-persisted data from Java — primary persistence path
+        try { Widget.emit('requestPixieData', {}); } catch(e) {}
     });
     Widget.on('update', function() {
         var s = readSettings();
@@ -116,8 +119,16 @@ if (typeof Widget !== 'undefined') {
         // Java bridge may deserialize the JSON string into an array — handle both
         var json = typeof data === 'string' ? data : JSON.stringify(data || []);
         loadCustomPixies(json);
-        try { localStorage.setItem('ci_customPixies', json); } catch(e) {}
-        try { Widget.setSetting('appearance.customPixies', json); } catch(e) {}
+    });
+    // Java responds to requestPixieData with file-stored JSON — primary persistence path
+    Widget.on('customPixies_fileData', function(data) {
+        var json = typeof data === 'string' ? data : JSON.stringify(data || []);
+        loadCustomPixies(json);
+    });
+    Widget.on('disabledPixies_fileData', function(data) {
+        var json = typeof data === 'string' ? data : JSON.stringify(data || []);
+        try { _disabledPixies = JSON.parse(json); } catch(e) { _disabledPixies = []; }
+        if (engine) engine.disabledPixies = _disabledPixies;
     });
     Koi.on('RICH_MESSAGE', function(event) { if (engine) engine.handleChatMessage(event); });
     // Broadcast active pixie state to config panel every 2 seconds

@@ -7,13 +7,28 @@ import co.casterlabs.caffeinated.pluginsdk.widgets.settings.WidgetSettingsItem;
 import co.casterlabs.caffeinated.pluginsdk.widgets.settings.WidgetSettingsLayout;
 import co.casterlabs.caffeinated.pluginsdk.widgets.settings.WidgetSettingsSection;
 import co.casterlabs.rakurai.json.element.JsonElement;
+import co.casterlabs.rakurai.json.element.JsonString;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class PixiesWidget extends Widget {
 
     static final List<PixiesWidget> instances = new CopyOnWriteArrayList<>();
+
+    // Same data directory as PixiesConfigWidget
+    private static final Path DATA_DIR = Paths.get(System.getProperty("user.home"), ".chatincluded");
+
+    private static String readFile(String filename) {
+        try {
+            Path p = DATA_DIR.resolve(filename);
+            if (Files.exists(p)) return Files.readString(p);
+        } catch (Exception ignored) {}
+        return "[]";
+    }
 
     @Override
     public void onInit() {
@@ -26,6 +41,14 @@ public class PixiesWidget extends Widget {
 
     @Override
     public void onNewInstance(WidgetInstance instance) {
+        // Overlay requests saved data on init — respond via broadcastToAll
+        instance.on("requestPixieData", (JsonElement ignored) -> {
+            String cp = readFile("custom-pixies.json");
+            String dp = readFile("disabled-pixies.json");
+            try { this.broadcastToAll("customPixies_fileData",  new JsonString(cp));  } catch (Exception e) {}
+            try { this.broadcastToAll("disabledPixies_fileData", new JsonString(dp)); } catch (Exception e) {}
+        });
+
         // Forward viewer sprite requests to all config panel instances
         instance.on("pixie_request", (JsonElement data) -> {
             for (PixiesConfigWidget cfg : PixiesConfigWidget.instances) {

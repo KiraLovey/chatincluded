@@ -321,16 +321,20 @@ Section "Install"
     StrCpy $InstallSucceeded "0"
 
     ; Remove any previously installed version of the plugin (handles version renames)
-    FindFirst $1 $2 "$PluginsPath\chatincluded-*.jar"
-    cleanup_old_loop:
+    ; Pattern: find one match → close handle → delete → repeat until none remain.
+    ; Closing the handle before Delete avoids a Windows quirk where deleting a file
+    ; mid-enumeration causes the next FindNext to return empty prematurely.
+    cleanup_old_start:
+        FindFirst $1 $2 "$PluginsPath\chatincluded-*.jar"
         ${If} $2 == ""
+            FindClose $1
             Goto cleanup_old_done
         ${EndIf}
-        Delete "$PluginsPath\$2"
-        FindNext $1 $2
-        Goto cleanup_old_loop
+        StrCpy $R0 "$2"
+        FindClose $1
+        Delete "$PluginsPath\$R0"
+        Goto cleanup_old_start
     cleanup_old_done:
-    FindClose $1
 
     ; Install the plugin JAR into the user-confirmed folder
     SetOutPath "$PluginsPath"
@@ -389,17 +393,18 @@ Section "Uninstall"
         StrCpy $0 "$APPDATA\casterlabs-caffeinated\plugins"
     ${EndIf}
 
-    ; Remove any version of the plugin JAR
-    FindFirst $1 $2 "$0\chatincluded-*.jar"
-    uninstall_jar_loop:
+    ; Remove any version of the plugin JAR (same close-before-delete pattern as installer)
+    uninstall_jar_start:
+        FindFirst $1 $2 "$0\chatincluded-*.jar"
         ${If} $2 == ""
+            FindClose $1
             Goto uninstall_jar_done
         ${EndIf}
-        Delete "$0\$2"
-        FindNext $1 $2
-        Goto uninstall_jar_loop
+        StrCpy $R0 "$2"
+        FindClose $1
+        Delete "$0\$R0"
+        Goto uninstall_jar_start
     uninstall_jar_done:
-    FindClose $1
 
     ; Remove the uninstaller and its directory
     Delete "$LOCALAPPDATA\ChatIncluded\Uninstall.exe"
