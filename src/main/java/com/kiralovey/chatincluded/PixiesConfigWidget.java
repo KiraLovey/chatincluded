@@ -65,14 +65,21 @@ public class PixiesConfigWidget extends Widget {
 
     @Override
     public void onNewInstance(WidgetInstance instance) {
-        // JS requests saved data on init — respond via broadcastToAll
+        // JS requests saved data on init — file is authoritative, settings only as first-install fallback
         instance.on("requestPixieData", (JsonElement ignored) -> {
-            // Read from Java-side settings (primary), fall back to file
-            String cp = this.settings().getString("appearance.customPixies", "[]");
-            if (cp == null || cp.isEmpty() || cp.equals("[]")) cp = readFile("custom-pixies.json");
+            // File is written on every add/remove, so it always reflects the latest state.
+            // Settings are only consulted if no file exists yet (first install before any save).
+            String cp = readFile("custom-pixies.json");
+            if (cp.equals("[]")) {
+                String s = this.settings().getString("appearance.customPixies", "[]");
+                if (s != null && !s.isEmpty() && !s.equals("[]")) cp = s;
+            }
 
-            String dp = this.settings().getString("appearance.disabledPixies", "[]");
-            if (dp == null || dp.isEmpty() || dp.equals("[]")) dp = readFile("disabled-pixies.json");
+            String dp = readFile("disabled-pixies.json");
+            if (dp.equals("[]")) {
+                String s = this.settings().getString("appearance.disabledPixies", "[]");
+                if (s != null && !s.isEmpty() && !s.equals("[]")) dp = s;
+            }
 
             try { this.broadcastToAll("customPixies_fileData",  new JsonString(cp));  } catch (Exception e) {}
             try { this.broadcastToAll("disabledPixies_fileData", new JsonString(dp)); } catch (Exception e) {}

@@ -41,7 +41,7 @@ public class PixiesWidget extends Widget {
 
     @Override
     public void onNewInstance(WidgetInstance instance) {
-        // Overlay requests saved data on init — respond via broadcastToAll
+        // Overlay requests saved data on init — file is always the authoritative source
         instance.on("requestPixieData", (JsonElement ignored) -> {
             String cp = readFile("custom-pixies.json");
             String dp = readFile("disabled-pixies.json");

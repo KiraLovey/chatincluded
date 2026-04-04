@@ -561,30 +561,29 @@ Widget.on('init', function() {
     });
     // Request file-persisted data from Java — authoritative source across restarts
     try { Widget.emit('requestPixieData', {}); } catch(e) {}
-    // Also push whatever we loaded above to the overlay (fallback / first-run)
-    if (_customPixies.length > 0) {
-        try { Widget.emit('customPixies_update', _initJson); } catch(e) {}
-    }
-    try { Widget.emit('disabledPixies_update', JSON.stringify(_disabledPixies)); } catch(e) {}
+    // Note: do NOT emit customPixies_update or disabledPixies_update here.
+    // Those events trigger Java saves and would overwrite the correct file data
+    // with stale in-memory state loaded from Widget.getSetting above.
 });
 
-// Java responds to requestPixieData with file-stored JSON — override in-memory state
+// Java responds with file-stored data — load into UI without re-saving
 Widget.on('customPixies_fileData', function(data) {
     var json = typeof data === 'string' ? data : JSON.stringify(data || []);
     var parsed; try { parsed = JSON.parse(json); } catch(e) { parsed = []; }
-    if (!Array.isArray(parsed) || parsed.length === 0) return;
+    if (!Array.isArray(parsed)) return;
     _customPixies = parsed;
     loadCustomPixies(json);
     renderCustomPixieList();
     renderPixieGrid();
-    try { Widget.emit('customPixies_update', json); } catch(e) {}
+    // Do NOT emit customPixies_update — that triggers Java to re-save and
+    // can overwrite the correct file with stale data on the next restart.
 });
 Widget.on('disabledPixies_fileData', function(data) {
     var json = typeof data === 'string' ? data : JSON.stringify(data || []);
     try { _disabledPixies = JSON.parse(json); } catch(e) { _disabledPixies = []; }
     renderStockPixieToggles();
     renderPixieGrid();
-    try { Widget.emit('disabledPixies_update', json); } catch(e) {}
+    // Do NOT emit disabledPixies_update — same reason as above.
 });
 
 
