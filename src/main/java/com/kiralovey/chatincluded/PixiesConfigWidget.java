@@ -3,6 +3,9 @@ package com.kiralovey.chatincluded;
 import co.casterlabs.caffeinated.pluginsdk.widgets.Widget;
 import co.casterlabs.caffeinated.pluginsdk.widgets.WidgetInstance;
 import co.casterlabs.caffeinated.pluginsdk.widgets.WidgetInstanceMode;
+import co.casterlabs.caffeinated.pluginsdk.widgets.settings.WidgetSettingsItem;
+import co.casterlabs.caffeinated.pluginsdk.widgets.settings.WidgetSettingsLayout;
+import co.casterlabs.caffeinated.pluginsdk.widgets.settings.WidgetSettingsSection;
 import co.casterlabs.rakurai.json.element.JsonElement;
 import co.casterlabs.rakurai.json.element.JsonString;
 
@@ -26,6 +29,12 @@ public class PixiesConfigWidget extends Widget {
     @Override
     public void onInit() {
         instances.add(this);
+        this.setSettingsLayout(new WidgetSettingsLayout()
+                .addSection(new WidgetSettingsSection("appearance", "Pixie Data")
+                        .addItem(WidgetSettingsItem.asText("customPixies",
+                                "Custom pixies (managed via UI)", "[]", "[]"))
+                        .addItem(WidgetSettingsItem.asText("disabledPixies",
+                                "Disabled stock pixies (managed via UI)", "[]", "[]"))));
     }
 
     @Override

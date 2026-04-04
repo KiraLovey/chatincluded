@@ -112,8 +112,9 @@ function PixieEngine(canvas, settings) {
     this.ctx      = canvas.getContext('2d');
     this.settings = settings || {};
     this.pixies   = {};          // userId -> pixie state
-    this.pixiePrefs = {};       // userId -> chosen sprite name
-    this.hueMap   = {};          // userId -> assigned hue
+    this.pixiePrefs     = {};   // userId -> chosen sprite name
+    this.hueMap         = {};   // userId -> assigned hue
+    this.disabledPixies = [];   // names the streamer has turned off
     this._running = false;
     this._lastTs  = 0;
     this._boundTick = this._tick.bind(this);
@@ -344,7 +345,7 @@ PixieEngine.prototype.handleChatMessage = function(event) {
     var userId = sender.channelId || sender.upid || sender.id;
     if (!userId) return;
 
-    var text = this._extractText(event);
+    var text = this._extractText(event).trim();
 
     // !pixie custom <url> or !sprite custom <url>
     var mCustom = text.match(/^!(?:pixie|sprite)\s+custom\s+(https?:\/\/\S+)/i);
@@ -363,9 +364,9 @@ PixieEngine.prototype.handleChatMessage = function(event) {
     // !pixie <name> (or !sprite <name> as alias)
     var m = text.match(/^!(?:pixie|sprite)\s+(\w+)/i);
     if (m) {
-        var requested = m[1].toLowerCase();
+        var requested = m[1].toLowerCase().trim();
         var found = PIXIE_NAMES.find(function(n){ return n.toLowerCase() === requested; });
-        if (found) {
+        if (found && this.disabledPixies.indexOf(found) < 0) {
             this.pixiePrefs[userId] = found;
             if (this.pixies[userId]) this.pixies[userId].pixieType = found;
         }
@@ -392,8 +393,12 @@ PixieEngine.prototype.handleChatMessage = function(event) {
 
 PixieEngine.prototype._spawnPixie = function(userId, sender) {
     var s = this.settings;
-    var pixieType = this.pixiePrefs[userId]
-        || PIXIE_NAMES[Math.floor(Math.random() * PIXIE_NAMES.length)];
+    var disabled = this.disabledPixies;
+    var pref = this.pixiePrefs[userId];
+    // Clear a saved pref if that pixie has since been disabled
+    if (pref && disabled.indexOf(pref) >= 0) pref = null;
+    var available = PIXIE_NAMES.filter(function(n) { return disabled.indexOf(n) < 0; });
+    var pixieType = pref || available[Math.floor(Math.random() * available.length)] || PIXIE_NAMES[0];
 
     var hue;
     if (s.hueShift !== false) {

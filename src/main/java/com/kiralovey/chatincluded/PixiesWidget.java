@@ -58,7 +58,11 @@ public class PixiesWidget extends Widget {
                 .addItem(WidgetSettingsItem.asCheckbox("showPlatformIcon",
                         "Show platform icon badge on pixie", false))
                 .addItem(WidgetSettingsItem.asRange("pixieScale",
-                        "Pixie scale (1 = tiny, 6 = huge)", 3, 1, 1, 6));
+                        "Pixie scale (1 = tiny, 6 = huge)", 3, 1, 1, 6))
+                .addItem(WidgetSettingsItem.asText("customPixies",
+                        "Custom pixies (managed via Config panel)", "[]", "[]"))
+                .addItem(WidgetSettingsItem.asText("disabledPixies",
+                        "Disabled stock pixies (managed via Config panel)", "[]", "[]"));
 
         WidgetSettingsSection movement = new WidgetSettingsSection("movement", "Movement")
                 .addItem(WidgetSettingsItem.asNumber("walkSpeedMin",

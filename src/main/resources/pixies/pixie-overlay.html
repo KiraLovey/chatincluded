@@ -33,6 +33,15 @@
 <script src="pixie-shared.js"></script>
 <script>
 var engine = null;
+var _disabledPixies = [];
+
+function _loadDisabledPixies() {
+    var raw = null;
+    try { raw = Widget.getSetting('appearance.disabledPixies'); } catch(e) {}
+    if (!raw) { try { raw = localStorage.getItem('ci_disabledPixies'); } catch(e) {} }
+    try { _disabledPixies = JSON.parse(raw || '[]'); } catch(e) { _disabledPixies = []; }
+    if (engine) engine.disabledPixies = _disabledPixies;
+}
 
 function readSettings() {
     return {
@@ -43,7 +52,7 @@ function readSettings() {
         walkSpeedMax:    Number(Widget.getSetting('movement.walkSpeedMax'))   || 0.07,
         maxPixies:       Number(Widget.getSetting('movement.maxPixies'))      || 40,
         inactivityMs:    Number(Widget.getSetting('timing.inactivityMs'))     || 90000,
-        customPixies:    (function(){ var v = null; try { v = Widget.getSetting('appearance.customPixies'); } catch(e) {} if (!v) { try { v = localStorage.getItem('ci_customPixies'); } catch(e) {} } return v || '[]'; })(),
+        customPixies:    (function(){ var v = null; try { v = Widget.getSetting('appearance.customPixies'); } catch(e) {} if (!v || v === '[]') { try { v = localStorage.getItem('ci_customPixies'); } catch(e) {} } return v || '[]'; })(),
         streamerUserId:  Widget.getSetting('streamer.userId')                 || '',
     };
 }
@@ -73,6 +82,7 @@ if (typeof Widget !== 'undefined') {
         var s = readSettings();
         loadCustomPixies(s.customPixies);
         initOverlay(s);
+        _loadDisabledPixies();
         engine.customRequestCallback = function(userId, displayName, url) {
             Widget.emit('pixie_request', { userId: userId, username: displayName, url: url });
         };
@@ -94,6 +104,13 @@ if (typeof Widget !== 'undefined') {
     Widget.on('pixie_remove', function(data) {
         if (!engine || !data || !data.userId) return;
         delete engine.pixies[data.userId];
+    });
+    Widget.on('disabledPixies_update', function(data) {
+        var json = typeof data === 'string' ? data : JSON.stringify(data || []);
+        try { _disabledPixies = JSON.parse(json); } catch(e) { _disabledPixies = []; }
+        if (engine) engine.disabledPixies = _disabledPixies;
+        try { localStorage.setItem('ci_disabledPixies', json); } catch(e) {}
+        try { Widget.setSetting('appearance.disabledPixies', json); } catch(e) {}
     });
     Widget.on('customPixies_update', function(data) {
         // Java bridge may deserialize the JSON string into an array — handle both
