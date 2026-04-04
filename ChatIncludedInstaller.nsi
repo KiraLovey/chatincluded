@@ -321,9 +321,10 @@ Section "Install"
     StrCpy $InstallSucceeded "0"
 
     ; Remove any previously installed version of the plugin (handles version renames)
-    ; Pattern: find one match → close handle → delete → repeat until none remain.
-    ; Closing the handle before Delete avoids a Windows quirk where deleting a file
-    ; mid-enumeration causes the next FindNext to return empty prematurely.
+    ; Close the find handle before deleting to avoid a Windows quirk where deleting
+    ; mid-enumeration causes FindNext to return empty prematurely.
+    ; If Delete fails (e.g. Casterlabs has the JAR locked), bail out with a message
+    ; rather than looping forever on the same undeletable file.
     cleanup_old_start:
         FindFirst $1 $2 "$PluginsPath\chatincluded-*.jar"
         ${If} $2 == ""
@@ -332,8 +333,14 @@ Section "Install"
         ${EndIf}
         StrCpy $R0 "$2"
         FindClose $1
+        ClearErrors
         Delete "$PluginsPath\$R0"
+        IfErrors cleanup_old_locked
         Goto cleanup_old_start
+    cleanup_old_locked:
+        MessageBox MB_OK|MB_ICONEXCLAMATION \
+            "Could not remove the existing ChatIncluded plugin.$\r$\n$\r$\nPlease close Casterlabs and run the installer again."
+        Abort
     cleanup_old_done:
 
     ; Install the plugin JAR into the user-confirmed folder
@@ -393,7 +400,7 @@ Section "Uninstall"
         StrCpy $0 "$APPDATA\casterlabs-caffeinated\plugins"
     ${EndIf}
 
-    ; Remove any version of the plugin JAR (same close-before-delete pattern as installer)
+    ; Remove any version of the plugin JAR
     uninstall_jar_start:
         FindFirst $1 $2 "$0\chatincluded-*.jar"
         ${If} $2 == ""
@@ -402,8 +409,14 @@ Section "Uninstall"
         ${EndIf}
         StrCpy $R0 "$2"
         FindClose $1
+        ClearErrors
         Delete "$0\$R0"
+        IfErrors uninstall_jar_locked
         Goto uninstall_jar_start
+    uninstall_jar_locked:
+        MessageBox MB_OK|MB_ICONEXCLAMATION \
+            "Could not remove ChatIncluded — please close Casterlabs first, then uninstall again."
+        Abort
     uninstall_jar_done:
 
     ; Remove the uninstaller and its directory
