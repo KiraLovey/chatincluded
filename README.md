@@ -59,19 +59,19 @@ ChatIncluded runs as a plugin inside Casterlabs. If you don't have it yet:
 3. Open (or restart) Casterlabs when the installer finishes
 
 #### macOS
-1. [**Download chatincluded-1.0.0.jar**](https://github.com/KiraLovey/chatincluded/raw/main/chatincluded-1.0.0.jar) and [**install.sh**](https://github.com/KiraLovey/chatincluded/raw/main/install.sh) into the same folder
-2. Open Terminal and run:
+1. [**Download ChatIncluded-installer.sh**](https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-installer.sh) — the plugin is bundled inside, so it's the only file you need
+2. Open Terminal and run (from the folder you downloaded it to):
    ```bash
-   chmod +x install.sh && ./install.sh
+   chmod +x ChatIncluded-installer.sh && ./ChatIncluded-installer.sh
    ```
 3. Follow the prompts — the script detects Casterlabs and installs into the correct plugins folder
 4. Open (or restart) Casterlabs when the script finishes
 
 #### Linux (Ubuntu and other distros)
-1. [**Download chatincluded-1.0.0.jar**](https://github.com/KiraLovey/chatincluded/raw/main/chatincluded-1.0.0.jar) and [**install.sh**](https://github.com/KiraLovey/chatincluded/raw/main/install.sh) into the same folder
-2. Open a terminal and run:
+1. [**Download ChatIncluded-installer.sh**](https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-installer.sh) — the plugin is bundled inside, so it's the only file you need
+2. Open a terminal and run (from the folder you downloaded it to):
    ```bash
-   chmod +x install.sh && ./install.sh
+   chmod +x ChatIncluded-installer.sh && ./ChatIncluded-installer.sh
    ```
 3. Follow the prompts — the script installs into `~/.local/share/casterlabs-caffeinated/plugins` by default
 4. Open (or restart) Casterlabs when the script finishes
@@ -103,7 +103,7 @@ When a new version is available, ChatIncluded will notify you in the Casterlabs 
 
 To update, download and run the latest installer for your platform:
 - **Windows** — [ChatIncluded-Setup.exe](https://github.com/KiraLovey/chatincluded/releases/latest/download/ChatIncluded-Setup.exe)
-- **macOS / Linux** — download the new `chatincluded-1.1.0.jar` and re-run `install.sh`, or copy the JAR directly into your plugins folder
+- **macOS / Linux** — [download the latest `ChatIncluded-installer.sh`](https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-installer.sh) and re-run it; it replaces any older plugin jar automatically
 
 The installer overwrites the existing plugin file automatically. Your settings are preserved.
 
