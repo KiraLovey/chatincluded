@@ -5,9 +5,9 @@
 
 set -euo pipefail
 
-PLUGIN_JAR="chatincluded-1.0.0.jar"
+PLUGIN_JAR="chatincluded-1.1.0.jar"
 PLUGIN_NAME="ChatIncluded"
-VERSION="1.0.0"
+VERSION="1.1.0"
 
 # ── Colours ────────────────────────────────────────────────────────────────────
 if [ -t 1 ]; then
@@ -148,6 +148,14 @@ if [ ! -d "$PLUGINS_DIR" ]; then
             ;;
     esac
 fi
+
+# ── Remove any previously installed version of the plugin ─────────────────────
+# Mirrors the Windows installer so upgrades don't leave two jars that Casterlabs
+# would both load.
+for old in "$PLUGINS_DIR"/chatincluded-*.jar; do
+    [ -e "$old" ] || continue
+    rm -f "$old" || warn "Could not remove old plugin: $(basename "$old")"
+done
 
 # ── Copy the JAR ──────────────────────────────────────────────────────────────
 info "Installing $PLUGIN_JAR..."

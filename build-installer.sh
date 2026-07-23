@@ -9,7 +9,7 @@
 
 set -euo pipefail
 
-JAR="chatincluded-1.0.0.jar"
+JAR="chatincluded-1.1.0.jar"
 TEMPLATE="install.sh"
 OUTPUT="ChatIncluded-installer.sh"
 
