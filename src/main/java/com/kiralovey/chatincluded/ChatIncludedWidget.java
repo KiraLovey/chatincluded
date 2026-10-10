@@ -67,8 +67,8 @@ public class ChatIncludedWidget extends Widget {
         WidgetSettingsSection commands = new WidgetSettingsSection("commands", "Commands")
                 .addItem(WidgetSettingsItem.asTextArea("chatIncludedMessage",
                         "!chatincluded response message",
-                        "ChatIncluded automatically translates multilingual chat in real time across Twitch, Kick, YouTube, and Trovo! Works for multi-streamers. Commands & language codes: https://chatincluded.live",
-                        "ChatIncluded automatically translates multilingual chat in real time across Twitch, Kick, YouTube, and Trovo! Works for multi-streamers. Commands & language codes: https://chatincluded.live"))
+                        "ChatIncluded automatically translates multilingual chat in real time across Twitch, Kick, and YouTube! Works for multi-streamers. Commands & language codes: https://chatincluded.live",
+                        "ChatIncluded automatically translates multilingual chat in real time across Twitch, Kick, and YouTube! Works for multi-streamers. Commands & language codes: https://chatincluded.live"))
                 .addItem(WidgetSettingsItem.asDropdown("speakAccessLevel",
                         "!speak command access",
                         "streamer",
@@ -85,8 +85,7 @@ public class ChatIncludedWidget extends Widget {
         WidgetSettingsSection platforms = new WidgetSettingsSection("platforms", "Platforms")
                 .addItem(WidgetSettingsItem.asCheckbox("twitchEnabled",  "Enable on Twitch",  true))
                 .addItem(WidgetSettingsItem.asCheckbox("kickEnabled",    "Enable on Kick",    true))
-                .addItem(WidgetSettingsItem.asCheckbox("youtubeEnabled", "Enable on YouTube", true))
-                .addItem(WidgetSettingsItem.asCheckbox("trovoEnabled",   "Enable on Trovo",   true));
+                .addItem(WidgetSettingsItem.asCheckbox("youtubeEnabled", "Enable on YouTube", true));
 
         // Stats
         WidgetSettingsSection stats = buildStatsSection(tracker, settings);

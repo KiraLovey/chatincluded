@@ -3,7 +3,10 @@
 
 **ChatIncluded** is a plugin for [Casterlabs Caffeinated](https://casterlabs.co) that automatically translates multilingual chat messages in real time and posts the translation back to chat — no commands needed, no manual copy-pasting.
 
-It works seamlessly across **Twitch**, **Kick**, and **YouTube** simultaneously, making it perfect for multi-streamers with international audiences. Trovo and TikTok support coming soon.
+It works seamlessly across **Twitch**, **Kick**, and **YouTube** simultaneously, making it perfect for multi-streamers with international audiences. TikTok support coming soon.
+
+ChatIncluded is a [SimplyIncluded](https://simplyincluded.com) product. SimplyIncluded builds software that overcomes barriers in language, accent, hearing, and distance, so everyone can take part in live communication.
+SimplyIncluded. As it should be.
 
 🌐 **[chatincluded.live](https://chatincluded.live)** — Full documentation, commands reference, and download
 
@@ -58,25 +61,7 @@ ChatIncluded runs as a plugin inside Casterlabs. If you don't have it yet:
 2. Run the installer — it detects Casterlabs automatically and drops the plugin into the right place
 3. Open (or restart) Casterlabs when the installer finishes
 
-#### macOS
-1. [**Download ChatIncluded-installer.sh**](https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-installer.sh) — the plugin is bundled inside, so it's the only file you need
-2. Open Terminal and run (from the folder you downloaded it to):
-   ```bash
-   chmod +x ChatIncluded-installer.sh && ./ChatIncluded-installer.sh
-   ```
-3. Follow the prompts — the script detects Casterlabs and installs into the correct plugins folder
-4. Open (or restart) Casterlabs when the script finishes
-
-#### Linux (Ubuntu and other distros)
-1. [**Download ChatIncluded-installer.sh**](https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-installer.sh) — the plugin is bundled inside, so it's the only file you need
-2. Open a terminal and run (from the folder you downloaded it to):
-   ```bash
-   chmod +x ChatIncluded-installer.sh && ./ChatIncluded-installer.sh
-   ```
-3. Follow the prompts — the script installs into `~/.local/share/casterlabs-caffeinated/plugins` by default
-4. Open (or restart) Casterlabs when the script finishes
-
-> **Manual install (any platform):** If you prefer, just copy `chatincluded-1.1.0.jar` directly into your Casterlabs plugins folder. In Casterlabs: Settings → Plugins → Open Plugins Folder.
+> **Manual install:** If you prefer, just copy `chatincluded-1.1.0.jar` directly into your Casterlabs plugins folder. In Casterlabs: Settings → Plugins → Open Plugins Folder.
 
 ### Step 4 — Configure the Plugin
 
@@ -101,9 +86,8 @@ When a new version is available, ChatIncluded will notify you in the Casterlabs 
 [ChatIncluded] Update guide    : https://chatincluded.live
 ```
 
-To update, download and run the latest installer for your platform:
-- **Windows** — [ChatIncluded-Setup.exe](https://github.com/KiraLovey/chatincluded/releases/latest/download/ChatIncluded-Setup.exe)
-- **macOS / Linux** — [download the latest `ChatIncluded-installer.sh`](https://github.com/KiraLovey/chatincluded/raw/main/ChatIncluded-installer.sh) and re-run it; it replaces any older plugin jar automatically
+To update, download and run the latest installer:
+- [**ChatIncluded-Setup.exe**](https://github.com/KiraLovey/chatincluded/releases/latest/download/ChatIncluded-Setup.exe)
 
 The installer overwrites the existing plugin file automatically. Your settings are preserved.
 
@@ -253,10 +237,8 @@ A normal HTTP/2 network hiccup affecting only that one message. The plugin conti
 - [x] Minimum message length filter
 - [x] Update notifications on startup
 - [x] Windows installer (ChatIncluded-Setup.exe)
-- [x] macOS / Linux installer (install.sh)
 - [x] chatincluded.live — website with documentation
 - [ ] Code signing (in progress)
-- [ ] Trovo support
 - [ ] TikTok support
 - [ ] Persistent viewer language preferences across streams
 
@@ -264,7 +246,7 @@ A normal HTTP/2 network hiccup affecting only that one message. The plugin conti
 
 ## Security
 
-- The installer (`ChatIncluded-Setup.exe`) is signed — see [chatincluded.live/policy.html](https://chatincluded.live/policy.html) for the code signing policy
+- The installer (`ChatIncluded-Setup.exe`) is **not** code-signed yet, so Windows SmartScreen may warn about an unknown publisher — see [chatincluded.live/policy.html](https://chatincluded.live/policy.html) for the signing policy the project will follow once signing is in place
 - Your DeepL API key is stored inside Casterlabs — ChatIncluded never writes it to any file
 - Avoid sharing Casterlabs log files (`%appdata%\casterlabs-caffeinated\logs\`) during debug sessions
 - If your API key is ever exposed, regenerate it at [deepl.com/account](https://www.deepl.com/account)

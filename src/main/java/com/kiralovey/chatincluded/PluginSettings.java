@@ -33,7 +33,7 @@ public class PluginSettings {
 
     // Commands
     public String chatIncludedMessage = "ChatIncluded automatically translates multilingual chat "
-            + "in real time across Twitch, Kick, YouTube, and Trovo! Works for multi-streamers. "
+            + "in real time across Twitch, Kick, and YouTube! Works for multi-streamers. "
             + "Commands & language codes: https://chatincluded.live";
     public String speakAccessLevel    = "streamer";
 
