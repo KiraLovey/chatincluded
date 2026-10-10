@@ -171,6 +171,20 @@
             margin-bottom: 1.25rem;
         }
 
+        .status-note {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--purple);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.25rem;
+            font-size: 0.92rem;
+            line-height: 1.7;
+            color: var(--muted);
+        }
+
+        .status-note strong { color: var(--text); }
+
         .section-label {
             font-size: 0.72rem;
             text-transform: uppercase;
@@ -319,6 +333,15 @@
     </div>
 
     <div class="content">
+
+        <!-- Current status -->
+        <div class="status-note">
+            <strong>Status: code signing is not active yet.</strong>
+            ChatIncluded releases are currently unsigned, so Windows SmartScreen may warn you about an unknown
+            publisher when you run the installer. The SignPath Foundation application was declined for now, pending
+            more project reputation, and will be resubmitted. This page describes the policy that applies once
+            signing is in place.
+        </div>
 
         <!-- 1. Overview -->
         <div class="policy-section">
